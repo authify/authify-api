@@ -1,5 +1,5 @@
 require 'bundler/gem_tasks'
-require "rspec/core/rake_task"
+require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'sinatra/activerecord/rake'
 
@@ -14,7 +14,7 @@ RuboCop::RakeTask.new(:rubocop)
 
 task default: [:spec, :rubocop]
 
-desc "Start the demo using `rackup`"
-task :start do 
-  exec "rackup config.ru"
+desc 'Start the demo using `rackup`'
+task :start do
+  exec 'rackup config.ru'
 end

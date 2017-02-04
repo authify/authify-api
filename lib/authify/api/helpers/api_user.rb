@@ -8,11 +8,11 @@ module Authify
 
         def set_current_user(user)
           found_user = if user.is_a? Authify::API::Models::User
-            user
-          elsif user.is_a? Fixnum
-            Models::User.find(user)
-          elsif user.is_a? String
-            Models::User.find_by_email(user)
+                         user
+                       elsif user.is_a? Integer
+                         Models::User.find(user)
+                       elsif user.is_a? String
+                         Models::User.find_by_email(user)
           end
 
           halt 422 unless found_user

@@ -6,14 +6,14 @@ module Authify
         extend Core::SecureHashing
         include JSONAPIUtils
 
-        attr_reader   :secret_key
-        
+        attr_reader :secret_key
+
         validates_presence_of :access_key
         validates_presence_of :secret_key_digest
 
         belongs_to :user,
-          required: true,
-          class_name: "Authify::API::Models::User"
+                   required: true,
+                   class_name: 'Authify::API::Models::User'
 
         def secret_key=(unencrypted_string)
           @secret_key = unencrypted_string

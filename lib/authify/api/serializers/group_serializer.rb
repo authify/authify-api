@@ -3,7 +3,7 @@ module Authify
     module Serializers
       class GroupSerializer
         include JSONAPI::Serializer
-        
+
         attribute :name
         attribute :description
         has_one :organization

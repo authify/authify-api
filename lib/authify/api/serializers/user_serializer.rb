@@ -3,7 +3,7 @@ module Authify
     module Serializers
       class UserSerializer
         include JSONAPI::Serializer
-        
+
         attribute :email
         attribute :full_name
         has_many :api_keys

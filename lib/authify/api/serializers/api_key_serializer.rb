@@ -3,7 +3,7 @@ module Authify
     module Serializers
       class APIKeySerializer
         include JSONAPI::Serializer
-        
+
         attribute :access_key
         has_one :user
       end

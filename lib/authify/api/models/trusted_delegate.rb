@@ -4,7 +4,7 @@ module Authify
       class TrustedDelegate < ActiveRecord::Base
         include Core::SecureHashing
 
-        attr_reader   :secret_key
+        attr_reader :secret_key
 
         validates_uniqueness_of :name
         validates_uniqueness_of :access_key
@@ -32,8 +32,6 @@ module Authify
           trusted_delegate = find_by_access_key(access)
           if trusted_delegate && trusted_delegate.compare_secret(secret)
             trusted_delegate
-          else
-            nil
           end
         end
       end

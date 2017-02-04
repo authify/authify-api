@@ -5,8 +5,8 @@ module Authify
         include JSONAPIUtils
 
         belongs_to :user,
-          required: true,
-          class_name: "Authify::API::Models::User"
+                   required: true,
+                   class_name: 'Authify::API::Models::User'
       end
     end
   end

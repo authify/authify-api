@@ -20,7 +20,7 @@ module Authify
           }
         end
 
-        def with_jwt req, scope
+        def with_jwt(req, scope)
           scopes, user = req.env.values_at :scopes, :user
           set_current_user Models::User.from_username(user['username'])
 

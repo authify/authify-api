@@ -3,7 +3,7 @@ module Authify
     module Services
       class JWTProvider < Service
         helpers Helpers::APIUser
-        
+
         configure do
           set :protection, except: :http_origin
         end
@@ -11,11 +11,11 @@ module Authify
         before '*' do
           content_type 'application/json'
           headers 'Access-Control-Allow-Origin' => '*',
-                  'Access-Control-Allow-Methods' => [
-                    'OPTIONS',
-                    'GET',
-                    'POST'
-                  ]
+                  'Access-Control-Allow-Methods' => %w(
+                    OPTIONS
+                    GET
+                    POST
+                  )
 
           begin
             unless request.get? || request.options?
@@ -23,7 +23,7 @@ module Authify
               @parsed_body = JSON.parse(request.body.read)
             end
           rescue => e
-            halt(400, { :error => "Request must be valid JSON: #{e.message}" }.to_json)
+            halt(400, { error: "Request must be valid JSON: #{e.message}" }.to_json)
           end
         end
 
@@ -39,8 +39,6 @@ module Authify
                          Models::User.from_api_key(access, secret)
                        elsif email
                          Models::User.from_email(email, password)
-                       else
-                         nil
                        end
 
           if found_user
@@ -53,7 +51,7 @@ module Authify
 
         get '/key' do
           content_type 'application/x-pem-file'
-          headers["Content-Disposition"] = "attachment;filename=public_key.pem"
+          headers['Content-Disposition'] = 'attachment;filename=public_key.pem'
           public_key.export
         end
       end

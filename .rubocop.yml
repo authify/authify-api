@@ -12,3 +12,12 @@ Metrics/MethodLength:
 
 Metrics/CyclomaticComplexity:
   Max: 10
+
+BlockLength:
+  Exclude:
+    - '*.gemspec'
+    - 'lib/authify/api/controllers/*.rb'
+
+AllCops:
+  Exclude:
+    - 'db/schema.rb'
