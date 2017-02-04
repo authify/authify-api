@@ -10,8 +10,6 @@ require 'sinatra/jsonapi'
 require 'tilt/erb'
 require 'connection_pool'
 require 'moneta'
-require 'omniauth'
-require 'omniauth-github'
 
 # Internal Requirements
 module Authify
