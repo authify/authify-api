@@ -1,5 +1,13 @@
 sudo: false
 language: ruby
 rvm:
-  - 2.3.1
+- 2.3.1
 before_install: gem install bundler -v 1.12.5
+deploy:
+  provider: rubygems
+  api_key:
+    secure: evFBlOvyjBT71e1FYTtYn6UZ+Q/KW2wPx1rXqgb5H6YBQxPFTjZfAOZ0y1xbYEueUk1qrYuCSlMs8MT7KCzh5oF0KDnhYGKZoRHA/LjbBwqC0hGdePr6oMX6pb68C80wFsCBMPEYfiHupz7x8H/38Xh8zpwpdiQj/MvWnyVwN8x7iZJjAe/Naw5vful2YLdGVvpnqWWdTNsZq2zOdrMDyOUNuPhJawMWomURcw8MBlSR18HJtjh2a2Qi12CZ+mdA2v593IgbxFY6EjHgdpZJuotu+PsjDNaHnRdyGs5+m5pyCsCEUL0B8gmTi8B2apcz1Cxg/sDPUIZGlgIrYhTffmqr1aHIx3xGgoSofkv1k72HL7gDQNkbEyqLuRp9jkcfyYSLdYpq7Vy7uMrDDer77zXHxCcwXDURsWqoBns69ohPzyGIIpKsxCNgVD6DfJF/sXzcGReCn/TS9lW4bzTrWJ8AnSX7e/EXCJoBMy0FPJFDs3mpUShnQdssEH5w2CazJTloe4rZSIq4/eL+pQCtdMNNUi7T/F1dHrRzYcTkWTWQZX3DhZLKXzNu6etun8dzOQ6/2Hb+owwExE9/msbSOeK54AZE21ODKD7+5+qoKIG3CVuGdDE7JPtCjYPkXnOm9Zvo2Rcb30sbNqg+opgwIedVLxDy+PAzP6eUZf0y5bk=
+  gem: authify-api
+  on:
+    tags: true
+    repo: knuedge/authify-api
