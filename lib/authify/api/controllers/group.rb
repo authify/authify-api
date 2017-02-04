@@ -17,12 +17,16 @@ module Authify
           next resource
         end
 
-        show_many do |ids|
-          Models::Group.find(ids)
+        create do |attrs|
+          Models::Group.new(attrs)
         end
 
         destroy do
           resource.destroy
+        end
+
+        show_many do |ids|
+          Models::Group.find(ids)
         end
 
         has_many :users do

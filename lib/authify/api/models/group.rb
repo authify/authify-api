@@ -1,6 +1,7 @@
 module Authify
   module API
     module Models
+      # A way of grouping multiple users
       class Group < ActiveRecord::Base
         include JSONAPIUtils
 

@@ -1,6 +1,7 @@
 module Authify
   module API
     module Models
+      # A User of the system
       class User < ActiveRecord::Base
         include Core::SecureHashing
         include JSONAPIUtils
@@ -32,16 +33,18 @@ module Authify
                                 class_name: 'Authify::API::Models::Group'
 
         # Encrypts the password into the password_digest attribute.
-        def password=(unencrypted_password)
-          @password = unencrypted_password
-          if unencrypted_password && !unencrypted_password.empty?
-            self.password_digest = salted_sha512(unencrypted_password)
-          end
+        def password=(plain_password)
+          @password = plain_password
+          self.password_digest = salted_sha512(plain_password) if viable(plain_password)
         end
 
         def authenticate(unencrypted_password)
           return false unless unencrypted_password && !unencrypted_password.empty?
           compare_salted_sha512(unencrypted_password, password_digest)
+        end
+
+        def admin_for?(organization)
+          organization.admins.include?(self)
         end
 
         def self.from_api_key(access, secret)
@@ -57,6 +60,12 @@ module Authify
         def self.from_identity(provider, uid)
           provided_identity = Identity.find_by_provider_and_uid(provider, uid)
           provided_identity.user if provided_identity
+        end
+
+        private
+
+        def viable(string)
+          string && !string.empty?
         end
       end
     end

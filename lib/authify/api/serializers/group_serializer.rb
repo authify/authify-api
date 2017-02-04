@@ -1,6 +1,7 @@
 module Authify
   module API
     module Serializers
+      # JSON API Serializer for Group model
       class GroupSerializer
         include JSONAPI::Serializer
 

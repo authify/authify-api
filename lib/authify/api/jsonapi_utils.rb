@@ -1,5 +1,6 @@
 module Authify
   module API
+    # JSON API related Model utility methods
     module JSONAPIUtils
       def jsonapi_serializer_class_name
         this_class = self.class.name.split('::').last

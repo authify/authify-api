@@ -1,6 +1,7 @@
 module Authify
   module API
     module Serializers
+      # JSON API Serializer for APIKey model
       class APIKeySerializer
         include JSONAPI::Serializer
 

@@ -1,6 +1,7 @@
 module Authify
   module API
     module Models
+      # Additional, revocable user access
       class APIKey < ActiveRecord::Base
         include Core::SecureHashing
         extend Core::SecureHashing
@@ -17,9 +18,7 @@ module Authify
 
         def secret_key=(unencrypted_string)
           @secret_key = unencrypted_string
-          if unencrypted_string && !unencrypted_string.empty?
-            self.secret_key_digest = salted_sha512(unencrypted_string)
-          end
+          self.secret_key_digest = salted_sha512(unencrypted_string) if viable(unencrypted_string)
         end
 
         def compare_secret(unencrypted_string)
@@ -32,6 +31,12 @@ module Authify
 
         def self.generate_access_key
           to_hex(SecureRandom.gen_random(32))[0...32]
+        end
+
+        private
+
+        def viable(string)
+          string && !string.empty?
         end
       end
     end

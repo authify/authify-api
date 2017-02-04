@@ -1,6 +1,7 @@
 module Authify
   module API
     module Models
+      # External identities mapped to users (GitHub, Facebook, etc.)
       class Identity < ActiveRecord::Base
         include JSONAPIUtils
 

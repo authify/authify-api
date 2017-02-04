@@ -1,6 +1,7 @@
 module Authify
   module API
     module Models
+      # Trusted Delegates are remote applications that can do anything
       class TrustedDelegate < ActiveRecord::Base
         include Core::SecureHashing
 
@@ -11,9 +12,7 @@ module Authify
 
         def secret_key=(unencrypted_string)
           @secret_key = unencrypted_string
-          if unencrypted_string && !unencrypted_string.empty?
-            self.secret_key_digest = salted_sha512(unencrypted_string)
-          end
+          self.secret_key_digest = salted_sha512(unencrypted_string) if viable(unencrypted_string)
         end
 
         def compare_secret(unencrypted_string)
@@ -30,9 +29,13 @@ module Authify
 
         def self.from_access_key(access, secret)
           trusted_delegate = find_by_access_key(access)
-          if trusted_delegate && trusted_delegate.compare_secret(secret)
-            trusted_delegate
-          end
+          trusted_delegate if trusted_delegate && trusted_delegate.compare_secret(secret)
+        end
+
+        private
+
+        def viable(string)
+          string && !string.empty?
         end
       end
     end

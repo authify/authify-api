@@ -1,6 +1,7 @@
 module Authify
   module API
     module Services
+      # The main API Sinatra App
       class API < Service
         use Middleware::JWTAuth
         register Sinatra::JSONAPI

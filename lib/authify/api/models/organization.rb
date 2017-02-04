@@ -1,6 +1,7 @@
 module Authify
   module API
     module Models
+      # High-level logical organization of groups and users
       class Organization < ActiveRecord::Base
         include JSONAPIUtils
 

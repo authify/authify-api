@@ -1,6 +1,7 @@
 module Authify
   module API
     module Serializers
+      # JSON API Serializer for User model
       class UserSerializer
         include JSONAPI::Serializer
 

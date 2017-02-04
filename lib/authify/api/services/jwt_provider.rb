@@ -1,6 +1,7 @@
 module Authify
   module API
     module Services
+      # A Sinatra App specifically for managing JWT tokens
       class JWTProvider < Service
         helpers Helpers::APIUser
 
@@ -42,7 +43,7 @@ module Authify
                        end
 
           if found_user
-            set_current_user found_user
+            update_current_user found_user
             { jwt: jwt_token }.to_json
           else
             halt 401

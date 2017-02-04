@@ -1,3 +1,4 @@
+# Creates the trusted_delegates table
 class CreateTrustedDelegates < ActiveRecord::Migration[5.0]
   def change
     create_table :trusted_delegates do |t|

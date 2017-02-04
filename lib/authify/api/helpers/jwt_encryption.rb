@@ -1,6 +1,7 @@
 module Authify
   module API
     module Helpers
+      # Helper methods for working with JWT encryption
       module JWTEncryption
         include Core::Helpers::JWTSSL
 

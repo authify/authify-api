@@ -1,6 +1,7 @@
 module Authify
   module API
     module Serializers
+      # JSON API Serializer for Organization model
       class OrganizationSerializer
         include JSONAPI::Serializer
 

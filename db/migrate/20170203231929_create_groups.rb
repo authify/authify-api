@@ -1,3 +1,4 @@
+# Creates the groups table and a join table
 class CreateGroups < ActiveRecord::Migration[5.0]
   def change
     create_table :groups do |t|

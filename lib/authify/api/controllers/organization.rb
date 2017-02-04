@@ -21,9 +21,19 @@ module Authify
           Models::Organization.find(ids)
         end
 
+        destroy do
+          resource.destroy if @current_user.admin_for?(resource)
+        end
+
         has_many :users do
           fetch do
             resource.users
+          end
+        end
+
+        has_many :admins do
+          fetch do
+            resource.admins
           end
         end
 

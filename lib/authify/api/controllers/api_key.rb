@@ -17,12 +17,12 @@ module Authify
           next resource
         end
 
-        show_many do |ids|
-          Models::APIKey.find(ids)
-        end
-
         destroy do
           resource.destroy
+        end
+
+        show_many do |ids|
+          Models::APIKey.find(ids)
         end
 
         has_one :user do

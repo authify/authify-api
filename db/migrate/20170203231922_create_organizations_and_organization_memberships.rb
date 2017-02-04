@@ -1,3 +1,4 @@
+# Creates the organizations table and a join table
 class CreateOrganizationsAndOrganizationMemberships < ActiveRecord::Migration[5.0]
   def change
     create_table :organizations do |t|
