@@ -21,7 +21,7 @@ end
 
 namespace :delegate do
   desc 'Add a Trusted Delegate'
-  task :add, [:name] do |t, args|
+  task :add, [:name] do |_t, args|
     require 'authify/api'
     td = Authify::API::Models::TrustedDelegate.new(
       name: args[:name],
@@ -29,9 +29,9 @@ namespace :delegate do
     )
     td.set_secret!
     if td.save
-      p({ access: td.access_key, secret: td.secret_key })
+      p(access: td.access_key, secret: td.secret_key)
     else
-      puts "Failed to save Trusted Delegate"
+      puts 'Failed to save Trusted Delegate'
       exit 1
     end
   end
