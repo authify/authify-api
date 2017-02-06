@@ -4,6 +4,7 @@ module Authify
       # Trusted Delegates are remote applications that can do anything
       class TrustedDelegate < ActiveRecord::Base
         include Core::SecureHashing
+        extend Core::SecureHashing
 
         attr_reader :secret_key
 
