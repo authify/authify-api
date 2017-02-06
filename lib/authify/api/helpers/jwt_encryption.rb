@@ -6,17 +6,22 @@ module Authify
         include Core::Helpers::JWTSSL
 
         def jwt_token
-          JWT.encode jwt_payload(current_user.email), private_key, 'ES256'
+          JWT.encode jwt_payload(current_user), private_key, 'ES256'
         end
 
-        def jwt_payload(username)
+        def jwt_payload(user)
           {
             exp: Time.now.to_i + 60 * 60,
             iat: Time.now.to_i,
             iss: CONFIG[:jwt][:issuer],
             scopes: Core::Constants::JWTSCOPES,
             user: {
-              username: username
+              username: user.email,
+              uid: user.id,
+              organizations: user.organizations.map do |o|
+                               { name: o.name, oid: o.id, admin: o.admins.include?(user) }
+                             end,
+              groups: user.groups.map {|g| {name: g.name, gid: g.id}}
             }
           }
         end

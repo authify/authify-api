@@ -6,7 +6,7 @@ module Authify
         include JSONAPIUtils
 
         has_many :organization_memberships,
-                 class_name: 'Authify::API::Models::OrganizationMemberships',
+                 class_name: 'Authify::API::Models::OrganizationMembership',
                  dependent: :destroy
 
         has_many :users,
