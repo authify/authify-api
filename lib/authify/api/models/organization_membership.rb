@@ -6,10 +6,10 @@ module Authify
         include JSONAPIUtils
 
         belongs_to :organization,
-                 class_name: 'Authify::API::Models::Organization'
+                   class_name: 'Authify::API::Models::Organization'
 
         belongs_to :user,
-                 class_name: 'Authify::API::Models::User'
+                   class_name: 'Authify::API::Models::User'
       end
     end
   end

@@ -21,7 +21,7 @@ module Authify
               organizations: user.organizations.map do |o|
                                { name: o.name, oid: o.id, admin: o.admins.include?(user) }
                              end,
-              groups: user.groups.map {|g| {name: g.name, gid: g.id}}
+              groups: user.groups.map { |g| { name: g.name, gid: g.id } }
             }
           }
         end
