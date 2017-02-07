@@ -35,4 +35,24 @@ namespace :delegate do
       exit 1
     end
   end
+
+  desc 'List Trusted Delegates'
+  task :list do
+    require 'authify/api'
+    Authify::API::Models::TrustedDelegate.all.each do |td|
+      p(name: td.name, access: td.access_key)
+    end
+  end
+
+  desc 'Delete a Trusted Delegate'
+  task :remove, [:name] do |_t, args|
+    require 'authify/api'
+    td = Authify::API::Models::TrustedDelegate.find_by_name(args[:name])
+    if td && td.destroy
+      puts "Trusted Delegate destroyed"
+    else
+      puts 'Failed to destroy Trusted Delegate'
+      exit 1
+    end
+  end
 end

@@ -58,7 +58,7 @@ The Authify API services supports the following configuration settings, managed 
 
 * `AUTHIFY_DB_URL` - The URL used by [ActiveRecord](http://guides.rubyonrails.org/configuring.html#configuring-a-database) to connect to the database. Currently supports `mysql2://` or `sqlite3://` URLs, though any driver supported by ActiveRecord should work if the required gems are installed. Defaults to `mysql2://root@localhost:3306/authifydb`.
 * `AUTHIFY_PUBKEY_PATH` - The path on the filesystem to the PEM-encoded, public ECDSA key.
-* `AUTHIFY_PRIVKEY_PATH` - The path on the filesystem to the PEM-encoded, private ECDSA key. Currently, Authify only supports a [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) key using a `secp521r1` curve and the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) hashing algorithm.
+* `AUTHIFY_PRIVKEY_PATH` - The path on the filesystem to the PEM-encoded, private ECDSA key. Currently, Authify only supports an [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) key using a `secp521r1` curve and the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) hashing algorithm.
 * `AUTHIFY_JWT_ISSUER` - The name of the issuer ([iss field](https://en.wikipedia.org/wiki/JSON_Web_Token#Standard_fields)) used when creating the JWT. This **must** match on any service that verifies the JWT (meaning any service relying on Authify for authentication).
 
 ## Usage and Authentication Workflow
