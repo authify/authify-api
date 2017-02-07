@@ -100,7 +100,7 @@ We'll show how to interact with the API using `curl` as an example, and we'll as
 #### Register a new user
 
 ```shell
-curl -v \
+curl \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   --data \
