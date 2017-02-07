@@ -6,7 +6,7 @@ module Authify
         include Core::Helpers::JWTSSL
 
         def jwt_token
-          JWT.encode jwt_payload(current_user), private_key, 'ES256'
+          JWT.encode jwt_payload(current_user), private_key, 'ES512'
         end
 
         def jwt_payload(user)

@@ -25,7 +25,7 @@ module Authify
         end
 
         def self.generate_access_key
-          to_hex(SecureRandom.gen_random(32))[0...32]
+          to_hex(SecureRandom.gen_random(48))[0...48]
         end
 
         def self.from_access_key(access, secret)
