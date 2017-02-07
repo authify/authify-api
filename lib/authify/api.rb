@@ -18,7 +18,6 @@ module Authify
       db: {
         url: ENV['AUTHIFY_DB_URL'] || 'mysql2://root@localhost:3306/authifydb'
       },
-      session_secret: ENV['AUTHIFY_SESSION_SECRET'] || '1q2w3e4r5t6y7u8i9o0pazsxdcfvgbhnjmkl10zm',
       redis: {
         host: ENV['AUTHIFY_REDIS_HOST'] || 'localhost',
         port: ENV['AUTHIFY_REDIS_PORT'] || '6379'
