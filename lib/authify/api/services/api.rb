@@ -9,8 +9,37 @@ module Authify
         configure do
           set :protection, except: :http_origin
         end
+        helpers do
+          def processed_headers
+            request.env.dup.each_with_object({}) do |(k, v), acc|
+              acc[Regexp.last_match(1).downcase] = v if k =~ /^http_(.*)/i
+            end
+          end
 
-        # rubocop:disable Metrics/BlockLength
+          def determine_roles
+            unless env[:authenticated]
+              if processed_headers.key?('x_authify_access')
+                access = processed_headers['x_authify_access']
+                secret = processed_headers['x_authify_secret']
+                remote_app = Models::TrustedDelegate.from_access_key(access, secret)
+                env[:authenticated] = true if remote_app
+
+                if remote_app && processed_headers.key?('x_authify_on_behalf_of')
+                  @current_user = Models::User.find_by_email(
+                    processed_headers['x_authify_on_behalf_of']
+                  )
+                end
+              end
+            end
+            @roles ||= []
+            @roles << :user if env[:authenticated]
+          end
+
+          def roles
+            @roles || []
+          end
+        end
+
         before '*' do
           headers 'Access-Control-Allow-Origin' => '*',
                   'Access-Control-Allow-Methods' => %w(
@@ -21,27 +50,7 @@ module Authify
                     POST
                     PUT
                   )
-
-          unless env[:authenticated]
-            processed_headers = request.env.dup.each_with_object({}) do |(k, v), acc|
-              acc[Regexp.last_match(1).downcase] = v if k =~ /^http_(.*)/i
-            end
-            if processed_headers.key?('x_authify_access')
-              access = processed_headers['x_authify_access']
-              secret = processed_headers['x_authify_secret']
-              remote_app = Models::TrustedDelegate.from_access_key(access, secret)
-              env[:authenticated] = true if remote_app
-
-              if remote_app && processed_headers.key?('x_authify_on_behalf_of')
-                @current_user = Models::User.find_by_email(
-                  processed_headers['x_authify_on_behalf_of']
-                )
-              end
-            end
-          end
-          unless env[:authenticated]
-            halt 401, env[:authentication_errors].map(&:message).join(', ')
-          end
+          determine_roles
         end
 
         helpers Helpers::APIUser

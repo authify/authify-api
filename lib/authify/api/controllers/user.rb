@@ -6,13 +6,19 @@ module Authify
           def find(id)
             Models::User.find(id.to_i)
           end
+
+          def role
+            Array(super).tap do |a|
+              a << :myself if resource == current_user
+            end
+          end
         end
 
-        index do
+        index(roles: [:user]) do
           Models::User.all
         end
 
-        show do
+        show(roles: [:user]) do
           last_modified resource.updated_at
           next resource
         end
@@ -22,16 +28,16 @@ module Authify
         end
 
         has_many :api_keys do
-          fetch do
+          fetch(roles: [:myself, :admin]) do
             resource.api_keys
           end
 
-          clear do
+          clear(roles: [:myself, :admin]) do
             resource.api_keys.destroy_all
             resource.save
           end
 
-          subtract do |rios|
+          subtract(roles: [:myself, :admin]) do |rios|
             refs = rios.map { |attrs| Models::APIKey.new(attrs) }
             resource.api_keys.destroy(refs)
             resource.save
@@ -39,16 +45,16 @@ module Authify
         end
 
         has_many :identities do
-          fetch do
+          fetch(roles: [:myself, :admin]) do
             resource.identities
           end
 
-          clear do
+          clear(roles: [:myself, :admin]) do
             resource.identities.destroy_all
             resource.save
           end
 
-          subtract do |rios|
+          subtract(roles: [:myself, :admin]) do |rios|
             refs = rios.map { |attrs| Models::Identities.new(attrs) }
             resource.identities.destroy(refs)
             resource.save
@@ -56,13 +62,13 @@ module Authify
         end
 
         has_many :organizations do
-          fetch do
+          fetch(roles: [:user]) do
             resource.organizations
           end
         end
 
         has_many :groups do
-          fetch do
+          fetch(roles: [:myself, :admin]) do
             resource.groups
           end
         end

@@ -8,20 +8,20 @@ module Authify
           end
         end
 
-        index do
+        index(roles: [:admin]) do
           Models::Group.all
         end
 
-        show do
+        show(roles: [:admin]) do
           last_modified resource.updated_at
           next resource
         end
 
-        create do |attrs|
+        create(roles: [:admin]) do |attrs|
           Models::Group.new(attrs)
         end
 
-        destroy do
+        destroy(roles: [:admin]) do
           resource.destroy
         end
 
@@ -30,7 +30,7 @@ module Authify
         end
 
         has_many :users do
-          fetch do
+          fetch(roles: [:admin]) do
             resource.users
           end
         end

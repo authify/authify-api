@@ -8,16 +8,16 @@ module Authify
           end
         end
 
-        index do
+        index(roles: [:myself, :admin]) do
           Models::APIKey.all
         end
 
-        show do
+        show(roles: [:myself, :admin]) do
           last_modified resource.updated_at
           next resource
         end
 
-        destroy do
+        destroy(roles: [:myself, :admin]) do
           resource.destroy
         end
 
@@ -26,7 +26,7 @@ module Authify
         end
 
         has_one :user do
-          pluck do
+          pluck(roles: [:myself, :admin]) do
             resource.user
           end
         end

@@ -21,7 +21,7 @@ module Authify
           begin
             unless request.get? || request.options?
               request.body.rewind
-              @parsed_body = JSON.parse(request.body.read)
+              @parsed_body = JSON.parse(request.body.read, symbolize_names: true)
             end
           rescue => e
             halt(400, { error: "Request must be valid JSON: #{e.message}" }.to_json)
@@ -30,11 +30,11 @@ module Authify
 
         post '/token' do
           # For CLI / Typical API clients
-          access = @parsed_body['access_key']
-          secret = @parsed_body['secret_key']
+          access = @parsed_body[:access_key]
+          secret = @parsed_body[:secret_key]
           # For Web UIs
-          email = @parsed_body['email']
-          password = @parsed_body['password']
+          email = @parsed_body[:email]
+          password = @parsed_body[:password]
 
           found_user = if access
                          Models::User.from_api_key(access, secret)
@@ -59,10 +59,11 @@ module Authify
           }.to_json
         end
 
+        # Provide access to the public ECDSA key
         get '/key' do
-          content_type 'application/x-pem-file'
-          headers['Content-Disposition'] = 'attachment;filename=public_key.pem'
-          public_key.export
+          {
+            data: public_key.export
+          }.to_json
         end
       end
     end

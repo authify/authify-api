@@ -19,8 +19,10 @@ The Authify API service consists of a database for storing:
 
 Nearly all API endpoints available via Authify implement the [{json:api}](http://jsonapi.org/) 1.0 specification. The exceptions are:
 
-* `GET /jwt/key` - Returns Content Type: `application/x-pem-file`. This endpoint returns the PEM-encoded public key ([ES512](https://tools.ietf.org/html/rfc7518#section-3.4) (ECDSA)) which should be used to verify the signature made by the Authify service.
+* `GET /jwt/key` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the key `data` whose value is a PEM-encoded ECDSA public key, which should be used to verify the signature made by the Authify service.
+* `GET /jwt/meta` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the keys `algorithm`, `issuer`, and `expiration` that describe the kind of JWTs produced by this service.
 * `POST /jwt/token` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to obtain a [JWT token](https://en.wikipedia.org/wiki/JSON_Web_Token) for authentication when interacting with restricted endpoints (both on this service and for other integrated services). This endpoint expects a JSON Object with either the keys `access_key` and `secret_key` _OR_ `email` and `password`. There is no firm requirement to use either pair for any particular purpose, but for scenarios where the credentials may be stored on local disk (like an API command-line client), that the `access_key` and `secret_key` be used since those can easily be revoked if necessary. Upon successful authentication, the endpoint provides an JSON Object with the key `jwt` and a signed -- but not encrypted -- JWT. There should be nothing highly sensitive embedded in the JWT. The JWT defaults to expiring every 15 minutes.
+* `POST /registration/signup` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to signup for an account with Authify. This endpoint expects a JSON Object, requiring the keys `email` and `password`, with `name` and `via` being optional. If `via` is provided, then it must be a JSON Object with the keys `provider` and `uid`, otherwise it will be ignored. The `via` key is used to add an alternate identity (meaning they logged-in through an integration, like Github). This endpoint returns a JSON Object with the keys `id` and `email` on success.
 
 All other endpoints adhere to the {json:api} specification and can be found at the following base paths:
 
@@ -59,7 +61,7 @@ The Authify API services supports the following configuration settings, managed 
 * `AUTHIFY_DB_URL` - The URL used by [ActiveRecord](http://guides.rubyonrails.org/configuring.html#configuring-a-database) to connect to the database. Currently supports `mysql2://` or `sqlite3://` URLs, though any driver supported by ActiveRecord should work if the required gems are installed. Defaults to `mysql2://root@localhost:3306/authifydb`.
 * `AUTHIFY_PUBKEY_PATH` - The path on the filesystem to the PEM-encoded, public ECDSA key. Defaults to `~/.authify/ssl/public.pem`.
 * `AUTHIFY_PRIVKEY_PATH` - The path on the filesystem to the PEM-encoded, private ECDSA key. Currently, Authify only supports an [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) keys. Options include using a `secp521r1` curve and the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) hashing algorithm (called `ES512`), a `secp384r1` curve and the SHA-384 hashing algorithm (called `ES384`), or a `prime256v1` curve and the SHA-256 hashing algorithm (called `ES256`). See `AUTHIFY_JWT_ALGORITHM` below for information on how to configure Authify's algorithm to match the public and private keys you provide. The keys you specify **must** match the ECDSA algortihm and curve used to create them. 
-* `AUTHIFY_JWT_ISSUER` - The name of the issuer ([iss field](https://en.wikipedia.org/wiki/JSON_Web_Token#Standard_fields)) used when creating the JWT. This **must** match on any service that verifies the JWT (meaning any service relying on Authify for authentication).
+* `AUTHIFY_JWT_ISSUER` - The name of the issuer ([iss field](https://en.wikipedia.org/wiki/JSON_Web_Token#Standard_fields)) used when creating the JWT. This **must** match on any service that verifies the JWT (meaning any service relying on Authify for authentication), and it **must** be the same for all services that integrate with Authify.
 * `AUTHIFY_JWT_ALGORITHM` - The name of the [JWA](https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40) algorithm to use when loading keys and creating or verifying JWT signatures. Valid values are `ES256`, `ES384`, or `ES512`. Defaults to `ES512`. This **must** match the curve and algorithm used to produce the public and private keys found at `AUTHIFY_PUBKEY_PATH` and `AUTHIFY_PRIVKEY_PATH`, respectively. Note that the curves `prime256v1` (also called NIST P-256) used by `ES256` and `secp384r1` (also called NIST P-384) used by `ES384`, while offering a wider range of compatible SSL libraries, are described as unsafe on [SafeCurves](https://safecurves.cr.yp.to/) for several reasons described there.
 * `AUTHIFY_JWT_EXPIRATION` - How long should a JWT be valid (in minutes). Defaults to 15. Too small of a value will mean a lot more requests to the API; too high increases the possibility of viable keys being captured.
 
@@ -97,7 +99,22 @@ We'll show how to interact with the API using `curl` as an example, and we'll as
 
 #### Register a new user
 
-`TODO`
+```shell
+curl -v \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  --data \
+  '{
+    "name": "Some User",
+    "email": "someuser@mycompany.com",
+    "password": "b@d!dea",
+    "via": {
+      "provider": "github",
+      "uid": "user1234"
+    }
+  }' \
+  https://auth.mycompany.com/registration/signup
+```
 
 #### Create an API key set
 

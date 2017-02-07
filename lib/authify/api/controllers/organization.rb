@@ -21,7 +21,7 @@ module Authify
           Models::Organization.find(ids)
         end
 
-        destroy do
+        destroy(roles: [:admin]) do
           resource.destroy if @current_user.admin_for?(resource)
         end
 
