@@ -49,7 +49,7 @@ namespace :delegate do
     require 'authify/api'
     td = Authify::API::Models::TrustedDelegate.find_by_name(args[:name])
     if td && td.destroy
-      puts "Trusted Delegate destroyed"
+      puts 'Trusted Delegate destroyed'
     else
       puts 'Failed to destroy Trusted Delegate'
       exit 1

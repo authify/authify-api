@@ -17,6 +17,7 @@ BlockLength:
   Exclude:
     - '*.gemspec'
     - 'lib/authify/api/controllers/*.rb'
+    - Rakefile
 
 AllCops:
   Exclude:
