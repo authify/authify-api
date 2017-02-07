@@ -1,3 +1,5 @@
+#\ -s puma
+
 require 'authify/api'
 
 use Rack::ShowExceptions
