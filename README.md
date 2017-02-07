@@ -63,6 +63,72 @@ The Authify API services supports the following configuration settings, managed 
 
 ## Usage and Authentication Workflow
 
+### Generating an SSL Certificate
+
+Here is an example in Ruby generating an SSL cert for use with Authify API:
+
+```ruby
+require 'openssl'
+secret_key = OpenSSL::PKey::EC.new('secp521r1')
+secret_key.generate_key
+# write out the private key to a file...
+File.write(File.expand_path('/path/to/keys/private.pem'), secret_key.to_pem)
+public_key = secret_key
+public_key.private_key = nil
+# write out the public key to a file...
+File.write(File.expand_path('/path/to/keys/public.pem'), private_key.to_pem)
+```
+
+Using the OpenSSL CLI tool:
+
+```shell
+# Private key
+openssl ecparam -name secp521r1 -genkey -out /path/to/keys/private.pem
+# Public key
+openssl ec -in /path/to/keys/private.pem -pubout -out /path/to/keys/public.pem
+```
+
+### Authenticating for API clients
+
+We'll show how to interact with the API using `curl` as an example, and we'll assume the server is running at `auth.mycompany.com`.
+
+#### Register a new user
+
+`TODO`
+
+#### Create an API key set
+
+`TODO`
+
+#### Obtain a JWT
+
+```shell
+curl \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  --data \
+  '{ 
+    "access_key": "5f4abd1c6423ef02d1ec42e1cddaf5f8",
+    "secret_key": "fb97aa7d4e48f3e4bbb2930161a423fa8308393426c3612940da03f22cf36879"
+   }' \
+  https://auth.mycompany.com/jwt/token
+```
+
+The server will return something like:
+
+```javascript
+{"jwt":"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB"}
+```
+
+#### Use the JWT to Access a Protected Resource
+
+```shell
+curl \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB"
+  -H 'Accept: application/vnd.api+json' \
+  https://auth.mycompany.com/organizations
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/knuedge/authify-api.
