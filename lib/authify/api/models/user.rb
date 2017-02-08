@@ -44,7 +44,7 @@ module Authify
         end
 
         def admin_for?(organization)
-          organization.admins.include?(self)
+          admin? || organization.admins.include?(self)
         end
 
         def self.from_api_key(access, secret)

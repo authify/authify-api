@@ -33,10 +33,11 @@ module Authify
             end
             @roles ||= []
             @roles << :user if env[:authenticated]
+            @roles << :admin if current_user && current_user.admin?
           end
 
-          def roles
-            @roles || []
+          def role
+            (@roles || []).uniq
           end
         end
 

@@ -6,13 +6,20 @@ module Authify
           def find(id)
             Models::Organization.find(id.to_i)
           end
+
+          def role
+            Array(super).tap do |a|
+              a << :owner if current_user.admin_for?(resource)
+              a << :member if resource.users.include?(current_user)
+            end.uniq
+          end
         end
 
-        index do
+        index(roles: [:admin]) do
           Models::Organization.all
         end
 
-        show do
+        show(roles: [:user]) do
           last_modified resource.updated_at
           next resource
         end
@@ -21,24 +28,24 @@ module Authify
           Models::Organization.find(ids)
         end
 
-        destroy(roles: [:admin]) do
-          resource.destroy if @current_user.admin_for?(resource)
+        destroy(roles: [:owner, :admin]) do
+          resource.destroy
         end
 
         has_many :users do
-          fetch do
+          fetch(roles: [:owner, :admin, :member]) do
             resource.users
           end
         end
 
         has_many :admins do
-          fetch do
+          fetch(roles: [:owner, :admin, :member]) do
             resource.admins
           end
         end
 
         has_many :groups do
-          fetch do
+          fetch(roles: [:owner, :admin]) do
             resource.groups
           end
         end

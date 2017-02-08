@@ -6,6 +6,12 @@ module Authify
           def find(id)
             Models::APIKey.find(id.to_i)
           end
+
+          def role
+            Array(super).tap do |a|
+              a << :myself if resource == current_user
+            end.uniq
+          end
         end
 
         index(roles: [:myself, :admin]) do

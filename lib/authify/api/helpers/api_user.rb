@@ -4,7 +4,7 @@ module Authify
       # Helper methods for API users
       module APIUser
         def current_user
-          email = env.key?('user') ? env['user']['username'] : nil
+          email = env.key?(:user) ? env[:user]['username'] : nil
           @current_user ||= email ? Models::User.find_by_email(email) : nil
         end
 

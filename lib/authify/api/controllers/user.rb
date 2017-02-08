@@ -10,6 +10,18 @@ module Authify
           def role
             Array(super).tap do |a|
               a << :myself if resource == current_user
+            end.uniq
+          end
+
+          def modifiable_fields
+            [:full_name, :email].tap do |a|
+              a << :admin if role.include?(:admin)
+            end
+          end
+
+          def filtered_attributes(attributes)
+            attributes.select do |k,v|
+              modifiable_fields.include?(k)
             end
           end
         end
@@ -21,6 +33,12 @@ module Authify
         show(roles: [:user]) do
           last_modified resource.updated_at
           next resource
+        end
+
+        create(roles: [:admin]) do |attributes|
+          user = Models::User.new filtered_attributes(attributes)
+          user.save
+          next user
         end
 
         show_many do |ids|
