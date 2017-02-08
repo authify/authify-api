@@ -1,3 +1,4 @@
+# Sets a default for Users to not be admins
 class SetDefaultForUserAdmin < ActiveRecord::Migration[5.0]
   def change
     change_column_null :users, :admin, false

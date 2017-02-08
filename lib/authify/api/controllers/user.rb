@@ -20,7 +20,7 @@ module Authify
           end
 
           def filtered_attributes(attributes)
-            attributes.select do |k,v|
+            attributes.select do |k, _v|
               modifiable_fields.include?(k)
             end
           end
