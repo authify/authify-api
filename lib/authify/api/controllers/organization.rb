@@ -28,6 +28,13 @@ module Authify
           Models::Organization.find(ids)
         end
 
+        create(roles: [:user]) do |attrs|
+          o = Models::Organization.new(attrs)
+          o.admins << current_user
+          o.save
+          next o
+        end
+
         destroy(roles: [:owner, :admin]) do
           resource.destroy
         end

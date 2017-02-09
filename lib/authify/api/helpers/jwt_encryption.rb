@@ -18,20 +18,22 @@ module Authify
             user: {
               username: user.email,
               uid: user.id,
-              organizations: simple_orgs_by_user(user),
-              groups: simple_groups_by_user(user)
+              organizations: simple_orgs_by_user(user)
             }
           }
         end
 
         def simple_orgs_by_user(user)
           user.organizations.map do |o|
-            { name: o.name, oid: o.id, admin: o.admins.include?(user) }
+            {
+              name: o.name,
+              oid: o.id,
+              admin: o.admins.include?(user),
+              memberships: o.groups.select { |g| g.users.include?(user) }.map do |g|
+                { name: g.name, gid: g.id }
+              end
+            }
           end
-        end
-
-        def simple_groups_by_user(user)
-          user.groups.map { |g| { name: g.name, gid: g.id } }
         end
 
         def with_jwt(req, scope)

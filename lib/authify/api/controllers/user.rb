@@ -56,7 +56,8 @@ module Authify
           end
 
           subtract(roles: [:myself, :admin]) do |rios|
-            refs = rios.map { |attrs| Models::APIKey.new(attrs) }
+            refs = rios.map { |attrs| Models::APIKey.find(attrs) }
+            # This actually calls #destroy on the keys (we don't need orphaned keys)
             resource.api_keys.destroy(refs)
             resource.save
           end
@@ -72,15 +73,21 @@ module Authify
             resource.save
           end
 
-          subtract(roles: [:myself, :admin]) do |rios|
+          merge(roles: [:myself]) do |rios|
             refs = rios.map { |attrs| Models::Identities.new(attrs) }
+            resource.identities << refs
+            resource.save
+          end
+
+          subtract(roles: [:myself, :admin]) do |rios|
+            refs = rios.map { |attrs| Models::Identities.find(attrs) }
             resource.identities.destroy(refs)
             resource.save
           end
         end
 
         has_many :organizations do
-          fetch(roles: [:user]) do
+          fetch(roles: [:user, :myself]) do
             resource.organizations
           end
         end

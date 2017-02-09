@@ -9,6 +9,7 @@ module Authify
         attribute :description
         has_many :groups
         has_many :users
+        has_many :admins
       end
     end
   end
