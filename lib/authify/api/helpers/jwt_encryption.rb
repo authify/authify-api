@@ -5,8 +5,9 @@ module Authify
       module JWTEncryption
         include Core::Helpers::JWTSSL
 
-        def jwt_token
-          JWT.encode jwt_payload(current_user), private_key, CONFIG[:jwt][:algorithm]
+        def jwt_token(user = nil)
+          user ||= current_user
+          JWT.encode jwt_payload(user), private_key, CONFIG[:jwt][:algorithm]
         end
 
         def jwt_payload(user)

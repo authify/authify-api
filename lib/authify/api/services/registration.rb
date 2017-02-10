@@ -43,7 +43,7 @@ module Authify
             )
           end
           new_user.save
-          { id: new_user.id, email: new_user.email }.to_json
+          { id: new_user.id, email: new_user.email, jwt: jwt_token(new_user) }.to_json
         end
       end
     end
