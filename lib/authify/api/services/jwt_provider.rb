@@ -35,9 +35,19 @@ module Authify
           # For Web UIs
           email = @parsed_body[:email]
           password = @parsed_body[:password]
+          # For Trusted Delegates signing users in via omniauth
+          del_data = @parsed_body[:delegate]
+          omni_provider = @parsed_body[:provider]
+          omni_uid = @parsed_body[:uid]
+          trusted_delegate = Models::TrustedDelegate.from_access_key(
+            del_data[:access],
+            del_data[:secret]
+          )
 
           found_user = if access
                          Models::User.from_api_key(access, secret)
+                       elsif trusted_delegate
+                         Models::User.from_identity(omni_provider, omni_uid)
                        elsif email
                          Models::User.from_email(email, password)
                        end

@@ -31,11 +31,18 @@ module Authify
           via = @parsed_body[:via]
           password = @parsed_body[:password]
           name = @parsed_body[:name]
+          del_data = @parsed_body[:delegate]
+          trusted_delegate = Models::TrustedDelegate.from_access_key(
+            del_data[:access],
+            del_data[:secret]
+          )
+
           halt(422, 'Duplicate User') if Models::User.exists?(email: email)
+          halt(403, 'Password Required') unless password || trusted_delegate
 
           new_user = Models::User.new(email: email)
           new_user.full_name = name if name
-          new_user.password = password
+          new_user.password = password if password
           if via && via[:provider]
             new_user.identities.build(
               provider: via[:provider],

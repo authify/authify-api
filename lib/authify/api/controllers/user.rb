@@ -26,11 +26,11 @@ module Authify
           end
         end
 
-        index(roles: [:user]) do
+        index(roles: [:user, :trusted]) do
           Models::User.all
         end
 
-        show(roles: [:user]) do
+        show(roles: [:user, :trusted]) do
           last_modified resource.updated_at
           next resource
         end
@@ -64,7 +64,7 @@ module Authify
         end
 
         has_many :identities do
-          fetch(roles: [:myself, :admin]) do
+          fetch(roles: [:myself, :admin, :trusted]) do
             resource.identities
           end
 
