@@ -6,10 +6,6 @@ module Authify
         use Middleware::JWTAuth
         register Sinatra::JSONAPI
 
-        configure do
-          set :protection, except: :http_origin
-        end
-
         helpers Helpers::APIUser
 
         helpers do
@@ -32,19 +28,19 @@ module Authify
         end
 
         before '*' do
-          headers 'Access-Control-Allow-Origin' => '*',
-                  'Access-Control-Allow-Methods' => %w(
-                    OPTIONS
-                    DELETE
-                    GET
-                    PATCH
-                    POST
-                    PUT
-                  )
+          #headers 'Access-Control-Allow-Origin' => '*',
+          #        'Access-Control-Allow-Methods' => %w(
+          #          OPTIONS
+          #          DELETE
+          #          GET
+          #          PATCH
+          #          POST
+          #          PUT
+          #        )
           determine_roles
         end
 
-        resource :api_keys, &Controllers::APIKey
+        resource :apikeys, &Controllers::APIKey
         resource :identities, &Controllers::Identity
         resource :groups, &Controllers::Group
         resource :organizations, &Controllers::Organization

@@ -6,6 +6,9 @@ module Authify
         include JSONAPI::Serializer
 
         attribute :access_key
+        attribute :secret_key
+        attribute :created_at
+
         has_one :user
       end
     end

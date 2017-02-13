@@ -11,7 +11,7 @@ module Authify
         validates_uniqueness_of :email
         validates_format_of :email, with: /[-a-z0-9_+\.+]+\@([-a-z0-9]+\.)+[a-z0-9]{2,4}/i
 
-        has_many :api_keys,
+        has_many :apikeys,
                  class_name: 'Authify::API::Models::APIKey',
                  dependent: :destroy
 

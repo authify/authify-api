@@ -9,7 +9,7 @@ module Authify
 
           def role
             Array(super).tap do |a|
-              a << :myself if current_user.api_keys.include?(resource)
+              a << :myself if current_user.apikeys.include?(resource)
             end.uniq
           end
         end
@@ -20,14 +20,15 @@ module Authify
 
         show(roles: [:myself, :admin]) do
           last_modified resource.updated_at
-          next resource
+          next resource, exclude: [:secret_key]
         end
 
-        create(roles: [:user]) do |attributes|
-          key = Models::APIKey.new attributes
-          current_user.api_keys << key
+        create(roles: [:user]) do |_attributes|
+          key = Models::APIKey.new
+          key.populate!
+          current_user.apikeys << key
           current_user.save
-          next key
+          next [key.id, key]
         end
 
         destroy(roles: [:myself, :admin]) do

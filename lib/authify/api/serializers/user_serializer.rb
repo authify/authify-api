@@ -8,7 +8,9 @@ module Authify
         attribute :email
         attribute :full_name
         attribute :admin
-        has_many :api_keys
+        attribute :created_at
+
+        has_many :apikeys
         has_many :groups
         has_many :organizations
         has_many :identities

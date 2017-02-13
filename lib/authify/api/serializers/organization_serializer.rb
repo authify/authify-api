@@ -7,6 +7,8 @@ module Authify
 
         attribute :name
         attribute :description
+        attribute :created_at
+
         has_many :groups
         has_many :users
         has_many :admins

@@ -26,7 +26,7 @@ Nearly all API endpoints available via Authify implement the [{json:api}](http:/
 
 All other endpoints adhere to the {json:api} specification and can be found at the following base paths:
 
-* `/api-keys` - User API keys. Index is restricted. Should only really be useful for users manipulating their own keys.
+* `/apikeys` - User API keys. Index is restricted. Should only really be useful for users manipulating their own keys.
 * `/groups` - Groups. Index is restricted. Most interactions with groups should be scoped via organizations.
 * `/identities` - Alternate User Identities. These are other services that the user can login via (web UI only).
 * `/organizations` - Organizations. These are high-level groupings of users and groups. Non-administrators should only be able to see limited amounts of information about organizations.

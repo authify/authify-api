@@ -32,10 +32,14 @@ module Authify
           password = @parsed_body[:password]
           name = @parsed_body[:name]
           del_data = @parsed_body[:delegate]
-          trusted_delegate = Models::TrustedDelegate.from_access_key(
-            del_data[:access],
-            del_data[:secret]
-          )
+          trusted_delegate = if del_data
+                               Models::TrustedDelegate.from_access_key(
+                                 del_data[:access],
+                                 del_data[:secret]
+                               )
+                             else
+                               nil
+                             end
 
           halt(422, 'Duplicate User') if Models::User.exists?(email: email)
           halt(403, 'Password Required') unless password || trusted_delegate

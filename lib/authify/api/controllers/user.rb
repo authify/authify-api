@@ -24,6 +24,14 @@ module Authify
               modifiable_fields.include?(k)
             end
           end
+
+          def filter(collection, fields={})
+            collection.where(fields)
+          end
+
+          def sort(collection, fields={})
+            collection.order(fields)
+          end
         end
 
         index(roles: [:user, :trusted]) do
@@ -45,20 +53,20 @@ module Authify
           Models::User.find(ids)
         end
 
-        has_many :api_keys do
+        has_many :apikeys do
           fetch(roles: [:myself, :admin]) do
-            resource.api_keys
+            resource.apikeys
           end
 
           clear(roles: [:myself, :admin]) do
-            resource.api_keys.destroy_all
+            resource.apikeys.destroy_all
             resource.save
           end
 
           subtract(roles: [:myself, :admin]) do |rios|
             refs = rios.map { |attrs| Models::APIKey.find(attrs) }
             # This actually calls #destroy on the keys (we don't need orphaned keys)
-            resource.api_keys.destroy(refs)
+            resource.apikeys.destroy(refs)
             resource.save
           end
         end

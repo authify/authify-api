@@ -39,10 +39,14 @@ module Authify
           del_data = @parsed_body[:delegate]
           omni_provider = @parsed_body[:provider]
           omni_uid = @parsed_body[:uid]
-          trusted_delegate = Models::TrustedDelegate.from_access_key(
-            del_data[:access],
-            del_data[:secret]
-          )
+          trusted_delegate = if del_data
+                               Models::TrustedDelegate.from_access_key(
+                                 del_data[:access],
+                                 del_data[:secret]
+                               )
+                             else
+                               nil
+                             end
 
           found_user = if access
                          Models::User.from_api_key(access, secret)

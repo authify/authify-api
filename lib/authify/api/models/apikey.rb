@@ -3,6 +3,7 @@ module Authify
     module Models
       # Additional, revocable user access
       class APIKey < ActiveRecord::Base
+        self.table_name = 'apikeys'
         include Core::SecureHashing
         extend Core::SecureHashing
         include JSONAPIUtils
@@ -25,12 +26,25 @@ module Authify
           compare_salted_sha512(unencrypted_string, secret_key_digest)
         end
 
+        def set_access!
+          self.access_key = self.class.generate_access_key
+        end
+
         def set_secret!
-          self.secret_key = self.class.generate_access_key + self.class.generate_access_key
+          self.secret_key = self.class.generate_secret_key
+        end
+
+        def populate!
+          set_access!
+          set_secret!
         end
 
         def self.generate_access_key
-          to_hex(SecureRandom.gen_random(32))[0...32]
+          to_hex(SecureRandom.gen_random(32))[0...20]
+        end
+
+        def self.generate_secret_key
+          to_hex(SecureRandom.gen_random(32))[0...32] + to_hex(SecureRandom.gen_random(32))[0...32]
         end
 
         private
