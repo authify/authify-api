@@ -25,11 +25,11 @@ module Authify
             end
           end
 
-          def filter(collection, fields={})
+          def filter(collection, fields = {})
             collection.where(fields)
           end
 
-          def sort(collection, fields={})
+          def sort(collection, fields = {})
             collection.order(fields)
           end
         end

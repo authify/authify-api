@@ -44,8 +44,6 @@ module Authify
                                  del_data[:access],
                                  del_data[:secret]
                                )
-                             else
-                               nil
                              end
 
           found_user = if access

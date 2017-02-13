@@ -28,7 +28,7 @@ module Authify
         end
 
         before '*' do
-          #headers 'Access-Control-Allow-Origin' => '*',
+          # headers 'Access-Control-Allow-Origin' => '*',
           #        'Access-Control-Allow-Methods' => %w(
           #          OPTIONS
           #          DELETE

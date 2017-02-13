@@ -37,8 +37,6 @@ module Authify
                                  del_data[:access],
                                  del_data[:secret]
                                )
-                             else
-                               nil
                              end
 
           halt(422, 'Duplicate User') if Models::User.exists?(email: email)

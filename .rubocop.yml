@@ -17,6 +17,7 @@ Metrics/PerceivedComplexity:
   Max: 9
 
 BlockLength:
+  Max: 30
   Exclude:
     - '*.gemspec'
     - 'lib/authify/api/controllers/*.rb'
