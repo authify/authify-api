@@ -5,6 +5,10 @@ module Authify
       class APIKeySerializer
         include JSONAPI::Serializer
 
+        def type
+          'apikeys'
+        end
+
         attribute :access_key
         attribute :secret_key
         attribute :created_at
