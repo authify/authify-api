@@ -30,8 +30,8 @@ module Authify
 
         post '/token' do
           # For CLI / Typical API clients
-          access = @parsed_body[:access_key]
-          secret = @parsed_body[:secret_key]
+          access = @parsed_body[:access_key] || @parsed_body[:'access-key']
+          secret = @parsed_body[:secret_key] || @parsed_body[:'secret-key']
           # For Web UIs
           email = @parsed_body[:email]
           password = @parsed_body[:password]

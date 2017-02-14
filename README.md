@@ -110,7 +110,7 @@ curl \
     "password": "b@d!dea",
     "via": {
       "provider": "github",
-      "uid": "user1234"
+      "uid": "1234567"
     }
   }' \
   https://auth.mycompany.com/registration/signup
@@ -150,7 +150,7 @@ This endpoint (as can be seen from the `Accept` and `Content-Type` headers) spea
 ```javascript
 {
   "data": {
-    "type": "api-keys",
+    "type": "apikeys",
     "id": "197",
     "attributes": {
       "access-key": "4bb651af1754b2dff5b9",
@@ -158,13 +158,13 @@ This endpoint (as can be seen from the `Accept` and `Content-Type` headers) spea
       "created-at": "2017-02-13 22:50:44 UTC"
     },
     "links": {
-      "self": "/api-keys/197"
+      "self": "/apikeys/197"
     },
     "relationships": {
       "user": {
         "links": {
-          "self": "/api-keys/197/relationships/user",
-          "related": "/api-keys/197/user"
+          "self": "/apikeys/197/relationships/user",
+          "related": "/apikeys/197/user"
         }
       }
     }
@@ -193,6 +193,8 @@ curl \
    }' \
   https://auth.mycompany.com/jwt/token
 ```
+
+Note that you can also use either the underscored format for logging in with API keys (`access_key` and `secret_key`) or the dashed version provided in the {json:api} response before (`access-key` and `secret-key`). For all other endpoints (those adhering to the {json:api} spec) the dashed approach is required.
 
 The server will return something like:
 
