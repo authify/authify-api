@@ -3,7 +3,7 @@
 # External Requirements
 require 'authify/core'
 require 'authify/middleware'
-require 'sinatra'
+require 'sinatra/base'
 require 'sinatra/activerecord'
 require 'jsonapi-serializers'
 require 'sinatra/jsonapi'

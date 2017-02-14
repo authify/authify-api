@@ -28,7 +28,7 @@ module Authify
           key.populate!
           current_user.apikeys << key
           current_user.save
-          next [key.id, key]
+          next key.id, key
         end
 
         destroy(roles: [:myself, :admin]) do

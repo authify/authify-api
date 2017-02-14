@@ -116,9 +116,69 @@ curl \
   https://auth.mycompany.com/registration/signup
 ```
 
+This will return JSON similar to the following:
+
+```javascript
+{
+  "id": 172,
+  "email": "someuser@mycompany.com",
+  "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB"
+}
+```
+
+You'll need the JWT (found at key `jwt`) for the next step.
+
 #### Create an API key set
 
-`TODO`
+```shell
+curl \
+  -H 'Content-Type: application/vnd.api+json' \
+  -H 'Accept: application/vnd.api+json' \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB" \
+  --data \
+  '{
+    "data":
+    {
+      "type": "apikeys"
+    }
+  }' \
+  https://auth.mycompany.com/apikeys
+```
+
+This endpoint (as can be seen from the `Accept` and `Content-Type` headers) speaks only {json:api} and will return something like this with an HTTP 201:
+
+```javascript
+{
+  "data": {
+    "type": "api-keys",
+    "id": "197",
+    "attributes": {
+      "access-key": "4bb651af1754b2dff5b9",
+      "secret-key": "a3f1ee5085dad87d53ce04a1857a2677c7ffa136c506e8174fef6fa1c962e46f",
+      "created-at": "2017-02-13 22:50:44 UTC"
+    },
+    "links": {
+      "self": "/api-keys/197"
+    },
+    "relationships": {
+      "user": {
+        "links": {
+          "self": "/api-keys/197/relationships/user",
+          "related": "/api-keys/197/user"
+        }
+      }
+    }
+  },
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "included": [
+
+  ]
+}
+```
+
+Note that **it will not be possible to retrieve the `secret-key` attribute in plaintext again**, so store the results in a safe place.
 
 #### Obtain a JWT
 
@@ -144,7 +204,7 @@ The server will return something like:
 
 ```shell
 curl \
-  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB"
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB" \
   -H 'Accept: application/vnd.api+json' \
   https://auth.mycompany.com/organizations
 ```
