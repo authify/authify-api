@@ -6,7 +6,12 @@ module Authify
         include JSONAPI::Serializer
 
         attribute :name
+        attribute :public_email
+        attribute :gravatar_email
+        attribute :billing_email
         attribute :description
+        attribute :url
+        attribute :location
         attribute :created_at
 
         has_many :groups

@@ -9,14 +9,45 @@ module Authify
 
           def role
             Array(super).tap do |a|
-              a << :owner if current_user.admin_for?(resource)
-              a << :member if resource.users.include?(current_user)
+              a << :owner if resource && current_user.admin_for?(resource)
+              a << :member if resource && resource.users.include?(current_user)
             end.uniq
+          end
+
+          def modifiable_fields
+            [
+              :name,
+              :public_email,
+              :gravatar_email,
+              :billing_email,
+              :description,
+              :url,
+              :location
+            ]
+          end
+
+          def filtered_attributes(attributes)
+            attributes.select do |k, _v|
+              modifiable_fields.include?(k)
+            end
+          end
+
+          def filter(collection, fields = {})
+            collection.where(fields)
+          end
+
+          def sort(collection, fields = {})
+            collection.order(fields)
           end
         end
 
         index(roles: [:admin]) do
           Models::Organization.all
+        end
+
+        get '/mine' do
+          halt(403) unless can?(:create)
+          serialize_models current_user.organizations
         end
 
         show(roles: [:user]) do
@@ -33,6 +64,11 @@ module Authify
           o.admins << current_user
           o.save
           next o
+        end
+
+        update(roles: [:owner, :admin]) do |attrs|
+          resource.update filtered_attributes(attrs)
+          next resource
         end
 
         destroy(roles: [:owner, :admin]) do
