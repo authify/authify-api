@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sqlite3', '~> 1.3'
   spec.add_runtime_dependency 'json', '~> 2.0'
   spec.add_runtime_dependency 'jsonapi-serializers', '~> 0.16'
-  #spec.add_runtime_dependency 'sinja', '~> 1.2', '>= 1.2.4'
+  # spec.add_runtime_dependency 'sinja', '~> 1.2', '>= 1.2.4'
   spec.add_runtime_dependency 'puma', '~> 3.7'
 
   spec.add_development_dependency 'bundler', '~> 1.12'

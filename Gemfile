@@ -4,4 +4,4 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'sinja',
-  git: 'https://github.com/mwpastore/sinja.git', branch: 'master'
+    git: 'https://github.com/mwpastore/sinja.git', branch: 'master'
