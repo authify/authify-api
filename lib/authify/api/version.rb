@@ -2,8 +2,8 @@ module Authify
   module API
     VERSION = [
       0, # Major
-      0, # Minor
-      7  # Patch
+      1, # Minor
+      0  # Patch
     ].join('.')
   end
 end
