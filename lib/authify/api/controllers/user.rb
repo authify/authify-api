@@ -9,7 +9,7 @@ module Authify
 
           def role
             Array(super).tap do |a|
-              a << :myself if resource == current_user
+              a << :myself if current_user && resource && (resource.id == current_user.id)
             end.uniq
           end
 

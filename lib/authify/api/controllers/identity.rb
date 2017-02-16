@@ -27,7 +27,7 @@ module Authify
           ident = Models::Identity.new attributes
           current_user.identities << ident
           current_user.save
-          next ident
+          next ident.id, ident
         end
 
         destroy(roles: [:myself, :admin]) do

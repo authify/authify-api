@@ -3,6 +3,8 @@ module Authify
     module Services
       # A Sinatra App specifically for registering with the system
       class Registration < Service
+        helpers Helpers::APIUser
+
         configure do
           set :protection, except: :http_origin
         end
@@ -52,6 +54,7 @@ module Authify
             )
           end
           new_user.save
+          update_current_user new_user
           { id: new_user.id, email: new_user.email, jwt: jwt_token(new_user) }.to_json
         end
       end
