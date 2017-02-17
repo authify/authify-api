@@ -41,7 +41,7 @@ module Authify
           end
         end
 
-        index(roles: [:admin]) do
+        index(roles: [:admin, :user]) do
           Models::Organization.all
         end
 
@@ -89,7 +89,7 @@ module Authify
         end
 
         has_many :groups do
-          fetch(roles: [:owner, :admin]) do
+          fetch(roles: [:owner, :admin, :member]) do
             resource.groups
           end
         end
