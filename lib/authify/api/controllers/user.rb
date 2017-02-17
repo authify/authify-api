@@ -8,7 +8,7 @@ module Authify
           end
 
           def role
-            Array(super).tap do |a|
+            Array(super.dup).tap do |a|
               a << :myself if current_user && resource && (resource.id == current_user.id)
             end.uniq
           end
@@ -95,7 +95,7 @@ module Authify
         end
 
         has_many :organizations do
-          fetch(roles: [:user, :myself]) do
+          fetch(roles: [:user, :myself, :admin]) do
             resource.organizations
           end
         end
