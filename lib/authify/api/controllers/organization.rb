@@ -60,10 +60,11 @@ module Authify
         end
 
         create(roles: [:user]) do |attrs|
-          o = Models::Organization.new(attrs)
-          o.admins << current_user
+          o = Models::Organization.new filtered_attributes(attrs)
+          new_member = Models::OrganizationMembership.new(user: current_user, admin: true)
+          o.organization_memberships << new_member
           o.save
-          next o
+          next o.id, o
         end
 
         update(roles: [:owner, :admin]) do |attrs|

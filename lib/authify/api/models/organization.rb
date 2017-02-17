@@ -19,7 +19,8 @@ module Authify
 
         has_many :admins, -> { where admin: true },
                  through: :organization_memberships,
-                 class_name: 'Authify::API::Models::User'
+                 class_name: 'Authify::API::Models::User',
+                 source: 'user'
       end
     end
   end
