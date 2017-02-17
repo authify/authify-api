@@ -27,7 +27,7 @@ RUN cd /app \
 
 RUN mkdir /ssl
 
-RUN chown -R nobody:nogroup /app \
+RUN chown -R root:root /app \
     && chown -R nobody:nogroup /ssl
 
 USER nobody
