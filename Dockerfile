@@ -27,7 +27,9 @@ RUN cd /app \
 
 RUN mkdir /ssl
 
-RUN chown -R root:nogroup /app \
+RUN chown -R root:root /app \
+    && chown nobody:nogroup /app/db \
+    && chown nobody:nogroup /app/db/schema.rb \
     && rm -f /app/.travis.yml \
     && chown -R nobody:nogroup /ssl
 

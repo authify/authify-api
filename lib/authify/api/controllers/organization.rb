@@ -4,7 +4,7 @@ module Authify
       Organization = proc do
         helpers do
           def find(id)
-            Models::Organization.find(id.to_i)
+            Models::Organization.includes(:users, :groups, :admins).find(id.to_i)
           end
 
           def role
@@ -42,21 +42,26 @@ module Authify
         end
 
         index(roles: [:admin, :user]) do
-          Models::Organization.all
+          Models::Organization.includes(:users, :groups, :admins)
         end
 
         get '/mine' do
           halt(403) unless can?(:create)
-          serialize_models current_user.organizations
+          serialize_models current_user.organizations.includes(:users, :groups, :admins)
         end
 
         show(roles: [:user]) do
           last_modified resource.updated_at
-          next resource
+          exclude = []
+          unless role?(:admin, :owner)
+            exclude << 'billing_email'
+            exclude << 'gravatar_email'
+          end
+          next resource, exclude: exclude
         end
 
         show_many do |ids|
-          Models::Organization.find(ids)
+          Models::Organization.includes(:users, :groups, :admins).find(ids)
         end
 
         create(roles: [:user]) do |attrs|
