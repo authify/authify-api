@@ -27,8 +27,7 @@ RUN cd /app \
 
 RUN mkdir /ssl
 
-RUN rm -rf /app/.git \
-    && chown -R root:root /app \
+RUN chown -R root:nogroup /app \
     && rm -f /app/.travis.yml \
     && chown -R nobody:nogroup /ssl
 
