@@ -19,6 +19,34 @@ task :start do
   exec 'rackup config.ru'
 end
 
+namespace :jwt do
+  desc 'Generate a Signer Certificate'
+  task :gencert do
+    jwtalgo  = ENV['AUTHIFY_JWT_ALGORITHM']
+    privpath = ENV['AUTHIFY_PRIVKEY_PATH']
+    pubpath  = ENV['AUTHIFY_PUBKEY_PATH']
+    raise 'Missing ENV settings' unless jwtalgo && privpath && pubpath
+
+    require 'authify/api'
+    algo = case jwtalgo
+           when 'ES256'
+             'prime256v1'
+           when 'ES384'
+             'secp384r1'
+           when 'ES512'
+             'secp521r1'
+           end
+    secret_key = OpenSSL::PKey::EC.new(algo)
+    secret_key.generate_key
+    # write out the private key to a file...
+    File.write(File.expand_path(privpath), secret_key.to_pem)
+    public_key = secret_key
+    public_key.private_key = nil
+    # write out the public key to a file...
+    File.write(File.expand_path(pubpath), public_key.to_pem)
+  end
+end
+
 namespace :delegate do
   desc 'Add a Trusted Delegate'
   task :add, [:name] do |_t, args|
