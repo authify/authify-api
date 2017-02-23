@@ -38,6 +38,7 @@ module Authify
 
         def authenticate(unencrypted_password)
           return false unless unencrypted_password && !unencrypted_password.empty?
+          return false unless password_digest && !password_digest.empty?
           compare_salted_sha512(unencrypted_password, password_digest)
         end
 
