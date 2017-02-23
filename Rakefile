@@ -84,3 +84,10 @@ namespace :delegate do
     end
   end
 end
+
+namespace :docker do
+  desc 'Build a fresh docker image'
+  task :build do
+    exec 'docker build -t authify/api .'
+  end
+end
