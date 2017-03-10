@@ -49,6 +49,15 @@ module Authify
           next user
         end
 
+        update(roles: [:admin, :myself]) do |attrs|
+          # Necessary because #password= is overridden for Models::User
+          new_pass = attrs[:password] if attrs && attrs.key?(:password)
+          resource.update filtered_attributes(attrs)
+          resource.password = new_pass if new_pass
+          resource.save
+          next resource
+        end
+
         show_many do |ids|
           Models::User.find(ids)
         end
