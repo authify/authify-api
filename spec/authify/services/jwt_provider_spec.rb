@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+# Tests for the /jwt endpoints
 describe Authify::API::Services::JWTProvider do
   include Rack::Test::Methods
 
