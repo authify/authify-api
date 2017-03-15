@@ -14,6 +14,10 @@ require 'rspec'
 RSpec.configure do |config|
   # Global rspec resources... use sparingly
   config.add_setting :test_user
+  config.add_setting :test_user_apikey
+  config.add_setting :test_user_identity
+  config.add_setting :admin_user
+  config.add_setting :trusted_delegate
 
   config.before(:suite) do
     FileUtils.mkdir_p File.dirname(ENV['AUTHIFY_PUBKEY_PATH'])
@@ -43,11 +47,42 @@ RSpec.configure do |config|
 
     # A pre-built user for testing
     user = Authify::API::Models::User.new(
-      email: 'test.user@example.com'
+      email: 'test.user@example.com',
+      full_name: 'Test User'
     )
-    user.password = 'foobar123'
+    user.password = 'testuser123'
+    user.save
+    # Add an API Key to the user
+    key = Authify::API::Models::APIKey.new
+    key.populate!
+    user.apikeys << key
+    user.save
+    # Associate an identity with the user
+    identity = Authify::API::Models::Identity.new(provider: 'facetube', uid: '12345')
+    user.identities << identity
     user.save
     RSpec.configuration.test_user = user
+    RSpec.configuration.test_user_apikey = key
+    RSpec.configuration.test_user_identity = identity
+
+    # A pre-built global admin user for testing
+    admin_user = Authify::API::Models::User.new(
+      email: 'admin.user@example.com',
+      full_name: 'Admin User',
+      admin: true
+    )
+    admin_user.password = 'adminuser123'
+    admin_user.save
+    RSpec.configuration.admin_user = admin_user
+
+    # A trusted delegate for testing
+    td = Authify::API::Models::TrustedDelegate.new(
+      name: 'Test Delegate',
+      access_key: Authify::API::Models::TrustedDelegate.generate_access_key
+    )
+    td.set_secret!
+    td.save
+    RSpec.configuration.trusted_delegate = td
   end
 
   config.after(:suite) do

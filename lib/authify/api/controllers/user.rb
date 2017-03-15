@@ -91,13 +91,13 @@ module Authify
           end
 
           merge(roles: [:myself]) do |rios|
-            refs = rios.map { |attrs| Models::Identities.new(attrs) }
+            refs = rios.map { |attrs| Models::Identity.new(attrs) }
             resource.identities << refs
             resource.save
           end
 
           subtract(roles: [:myself, :admin]) do |rios|
-            refs = rios.map { |attrs| Models::Identities.find(attrs) }
+            refs = rios.map { |attrs| Models::Identity.find(attrs) }
             resource.identities.destroy(refs)
             resource.save
           end

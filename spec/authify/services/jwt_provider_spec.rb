@@ -50,12 +50,25 @@ describe Authify::API::Services::JWTProvider do
 
   # /token
   context 'token provider endpoint' do
+    context 'with incorrect credentials' do
+      it 'returns 401' do
+        header 'Accept', 'application/json'
+        post '/token', {
+          'email' => RSpec.configuration.test_user.email,
+          'password' => 'foobar123'
+        }.to_json
+
+        # Should respond with a 401
+        expect(last_response.status).to eq(401)
+      end
+    end
+
     context 'using an email and password' do
       it 'provides a usable JWT' do
         header 'Accept', 'application/json'
         post '/token', {
           'email' => RSpec.configuration.test_user.email,
-          'password' => 'foobar123'
+          'password' => 'testuser123'
         }.to_json
 
         # Should respond with a 200
