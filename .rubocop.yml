@@ -16,12 +16,14 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Max: 9
 
-BlockLength:
+Metrics/BlockLength:
   Max: 30
   Exclude:
     - '*.gemspec'
     - 'lib/authify/api/controllers/*.rb'
     - Rakefile
+    - 'spec/**/*_spec.rb'
+    - 'spec/spec_helper.rb'
 
 AllCops:
   Exclude:
