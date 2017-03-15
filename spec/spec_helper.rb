@@ -10,8 +10,6 @@ ENV['AUTHIFY_DB_URL']         = "sqlite3://#{File.join(base_path, 'authify.db')}
 require 'authify/api'
 require 'rack/test'
 require 'rspec'
-require 'rake'
-require 'sinatra/activerecord/rake'
 
 RSpec.configure do |config|
   # Global rspec resources... use sparingly
