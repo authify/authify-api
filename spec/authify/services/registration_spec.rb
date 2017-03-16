@@ -8,59 +8,63 @@ describe Authify::API::Services::Registration do
     Authify::API::Services::Registration
   end
 
-  # /signup
-  context 'signup endpoint' do
-    let(:password_signup_data) do
-      {
-        'email'    => 'second.user@example.com',
-        'password' => 'seconduser1234'
-      }
-    end
-
-    let(:identity_signup_data) do
-      {
-        'email'    => 'third.user@example.com',
-        'via' => {
-          'provider' => 'facetube',
-          'uid'      => '23456'
-        },
-        'delegate' => {
-          'access' => RSpec.configuration.trusted_delegate.access_key,
-          'secret' => RSpec.configuration.trusted_delegate.secret_key
+  context 'mounted at /registration' do
+    # /signup
+    context 'signup endpoint' do
+      let(:password_signup_data) do
+        {
+          'email'    => 'second.user@example.com',
+          'password' => 'seconduser1234'
         }
-      }
-    end
+      end
 
-    it 'allows registration via email and password' do
-      header 'Accept', 'application/json'
-      header 'Content-Type', 'application/json'
-      post '/signup', password_signup_data.to_json
+      let(:identity_signup_data) do
+        {
+          'email'    => 'third.user@example.com',
+          'via' => {
+            'provider' => 'facetube',
+            'uid'      => '23456'
+          },
+          'delegate' => {
+            'access' => RSpec.configuration.trusted_delegate.access_key,
+            'secret' => RSpec.configuration.trusted_delegate.secret_key
+          }
+        }
+      end
 
-      # Should respond with a 200
-      expect(last_response.status).to eq(200)
+      context 'POST /signup' do
+        it 'allows registration via email and password' do
+          header 'Accept', 'application/json'
+          header 'Content-Type', 'application/json'
+          post '/signup', password_signup_data.to_json
 
-      details = JSON.parse(last_response.body)
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
 
-      expect(details.size).to eq(3)
-      expect(details).to have_key('jwt')
-      expect(details['email']).to eq(password_signup_data['email'])
-      expect(details['id']).to eq(3)
-    end
+          details = JSON.parse(last_response.body)
 
-    it 'allows registration via delegate and identity' do
-      header 'Accept', 'application/json'
-      header 'Content-Type', 'application/json'
-      post '/signup', identity_signup_data.to_json
+          expect(details.size).to eq(3)
+          expect(details).to have_key('jwt')
+          expect(details['email']).to eq(password_signup_data['email'])
+          expect(details['id']).to eq(4)
+        end
 
-      # Should respond with a 200
-      expect(last_response.status).to eq(200)
+        it 'allows registration via delegate and identity' do
+          header 'Accept', 'application/json'
+          header 'Content-Type', 'application/json'
+          post '/signup', identity_signup_data.to_json
 
-      details = JSON.parse(last_response.body)
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
 
-      expect(details.size).to eq(3)
-      expect(details).to have_key('jwt')
-      expect(details['email']).to eq(identity_signup_data['email'])
-      expect(details['id']).to eq(4)
+          details = JSON.parse(last_response.body)
+
+          expect(details.size).to eq(3)
+          expect(details).to have_key('jwt')
+          expect(details['email']).to eq(identity_signup_data['email'])
+          expect(details['id']).to eq(5)
+        end
+      end
     end
   end
 end

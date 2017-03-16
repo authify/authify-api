@@ -11,12 +11,18 @@ require 'authify/api'
 require 'rack/test'
 require 'rspec'
 
+include Authify::API::Helpers::JWTEncryption
+
 RSpec.configure do |config|
   # Global rspec resources... use sparingly
   config.add_setting :test_user
   config.add_setting :test_user_apikey
   config.add_setting :test_user_identity
+  config.add_setting :test_user_token
+  config.add_setting :bad_user
+  config.add_setting :bad_user_token
   config.add_setting :admin_user
+  config.add_setting :admin_user_token
   config.add_setting :trusted_delegate
   config.add_setting :organization
   config.add_setting :group
@@ -67,6 +73,15 @@ RSpec.configure do |config|
     RSpec.configuration.test_user_apikey = key
     RSpec.configuration.test_user_identity = identity
 
+    # A pre-built user for misbehaving
+    bad_user = Authify::API::Models::User.new(
+      email: 'bad.user@example.com',
+      full_name: 'Bad User'
+    )
+    bad_user.password = 'baduser123'
+    bad_user.save
+    RSpec.configuration.bad_user = bad_user
+
     # A pre-built global admin user for testing
     admin_user = Authify::API::Models::User.new(
       email: 'admin.user@example.com',
@@ -105,6 +120,15 @@ RSpec.configure do |config|
     group.save
     RSpec.configuration.organization = org
     RSpec.configuration.group = group
+
+    # A user JWT for authentication
+    RSpec.configuration.test_user_token = jwt_token(user)
+
+    # A user JWT for authentication
+    RSpec.configuration.bad_user_token = jwt_token(bad_user)
+
+    # An admin JWT for authentication
+    RSpec.configuration.admin_user_token = jwt_token(admin_user)
   end
 
   config.after(:suite) do
