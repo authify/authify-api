@@ -18,6 +18,8 @@ RSpec.configure do |config|
   config.add_setting :test_user_identity
   config.add_setting :admin_user
   config.add_setting :trusted_delegate
+  config.add_setting :organization
+  config.add_setting :group
 
   config.before(:suite) do
     FileUtils.mkdir_p File.dirname(ENV['AUTHIFY_PUBKEY_PATH'])
@@ -83,6 +85,26 @@ RSpec.configure do |config|
     td.set_secret!
     td.save
     RSpec.configuration.trusted_delegate = td
+
+    # An organization for testing
+    org = Authify::API::Models::Organization.new(
+      name: 'Test Organization',
+      description: 'A test organization'
+    )
+    new_member = Authify::API::Models::OrganizationMembership.new(user: user, admin: true)
+    org.organization_memberships << new_member
+    org.save
+    # A group for testing
+    group = Authify::API::Models::Group.new(
+      name: 'users',
+      description: 'A test users group'
+    )
+    org.groups << group
+    org.save
+    group.users << user
+    group.save
+    RSpec.configuration.organization = org
+    RSpec.configuration.group = group
   end
 
   config.after(:suite) do

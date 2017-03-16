@@ -16,7 +16,7 @@ module Authify
             iat: Time.now.to_i,
             iss: CONFIG[:jwt][:issuer],
             scopes: Core::Constants::JWTSCOPES.dup.tap do |scopes|
-              scopes << :admin_access if current_user && current_user.admin?
+              scopes << :admin_access if user.admin?
             end,
             user: {
               username: user.email,
