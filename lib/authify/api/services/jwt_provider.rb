@@ -36,19 +36,12 @@ module Authify
           email = @parsed_body[:email]
           password = @parsed_body[:password]
           # For Trusted Delegates signing users in via omniauth
-          del_data = @parsed_body[:delegate]
           omni_provider = @parsed_body[:provider]
           omni_uid = @parsed_body[:uid]
-          trusted_delegate = if del_data
-                               Models::TrustedDelegate.from_access_key(
-                                 del_data[:access],
-                                 del_data[:secret]
-                               )
-                             end
 
           found_user = if access
                          Models::User.from_api_key(access, secret)
-                       elsif trusted_delegate
+                       elsif remote_app
                          Models::User.from_identity(omni_provider, omni_uid)
                        elsif email
                          Models::User.from_email(email, password)

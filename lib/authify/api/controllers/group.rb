@@ -19,7 +19,7 @@ module Authify
           Models::Group.all
         end
 
-        show(roles: [:admin, :owner]) do
+        show(roles: %i(admin owner)) do
           last_modified resource.updated_at
           next resource
         end
@@ -30,7 +30,7 @@ module Authify
           next g
         end
 
-        destroy(roles: [:admin, :owner]) do
+        destroy(roles: %i(admin owner)) do
           resource.destroy
         end
 
@@ -39,23 +39,23 @@ module Authify
         end
 
         has_many :users do
-          fetch(roles: [:admin, :owner]) do
+          fetch(roles: %i(admin owner)) do
             resource.users
           end
 
-          replace(roles: [:admin, :owner]) do |rios|
+          replace(roles: %i(admin owner)) do |rios|
             refs = rios.map { |attrs| Models::User.find(attrs) }
             resource.users = refs
             resource.save
           end
 
-          merge(roles: [:admin, :owner]) do |rios|
+          merge(roles: %i(admin owner)) do |rios|
             refs = rios.map { |attrs| Models::User.find(attrs) }
             resource.users << refs
             resource.save
           end
 
-          subtract(roles: [:admin, :owner]) do |rios|
+          subtract(roles: %i(admin owner)) do |rios|
             refs = rios.map { |attrs| Models::User.find(attrs) }
             # This only removes the linkage, not the actual users
             resource.users.delete(refs)

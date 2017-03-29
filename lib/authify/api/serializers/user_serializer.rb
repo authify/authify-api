@@ -9,6 +9,7 @@ module Authify
         attribute :full_name
         attribute :admin
         attribute :created_at
+        attribute :verified
 
         has_many :apikeys
         has_many :groups

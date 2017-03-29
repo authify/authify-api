@@ -14,7 +14,7 @@ module Authify
           end
 
           def modifiable_fields
-            [:full_name, :email].tap do |a|
+            %i(full_name email).tap do |a|
               a << :admin if role.include?(:admin)
             end
           end
@@ -34,11 +34,11 @@ module Authify
           end
         end
 
-        index(roles: [:user, :trusted]) do
+        index(roles: %i(user trusted)) do
           Models::User.all
         end
 
-        show(roles: [:user, :trusted]) do
+        show(roles: %i(user trusted)) do
           last_modified resource.updated_at
           next resource
         end
@@ -49,7 +49,7 @@ module Authify
           next user
         end
 
-        update(roles: [:admin, :myself]) do |attrs|
+        update(roles: %i(admin myself)) do |attrs|
           # Necessary because #password= is overridden for Models::User
           new_pass = attrs[:password] if attrs && attrs.key?(:password)
           resource.update filtered_attributes(attrs)
@@ -63,16 +63,16 @@ module Authify
         end
 
         has_many :apikeys do
-          fetch(roles: [:myself, :admin]) do
+          fetch(roles: %i(myself admin)) do
             resource.apikeys
           end
 
-          clear(roles: [:myself, :admin]) do
+          clear(roles: %i(myself admin)) do
             resource.apikeys.destroy_all
             resource.save
           end
 
-          subtract(roles: [:myself, :admin]) do |rios|
+          subtract(roles: %i(myself admin)) do |rios|
             refs = rios.map { |attrs| Models::APIKey.find(attrs) }
             # This actually calls #destroy on the keys (we don't need orphaned keys)
             resource.apikeys.destroy(refs)
@@ -81,11 +81,11 @@ module Authify
         end
 
         has_many :identities do
-          fetch(roles: [:myself, :admin, :trusted]) do
+          fetch(roles: %i(myself admin trusted)) do
             resource.identities
           end
 
-          clear(roles: [:myself, :admin]) do
+          clear(roles: %i(myself admin)) do
             resource.identities.destroy_all
             resource.save
           end
@@ -96,7 +96,7 @@ module Authify
             resource.save
           end
 
-          subtract(roles: [:myself, :admin]) do |rios|
+          subtract(roles: %i(myself admin)) do |rios|
             refs = rios.map { |attrs| Models::Identity.find(attrs) }
             resource.identities.destroy(refs)
             resource.save
@@ -104,13 +104,13 @@ module Authify
         end
 
         has_many :organizations do
-          fetch(roles: [:user, :myself, :admin]) do
+          fetch(roles: %i(user myself admin)) do
             resource.organizations
           end
         end
 
         has_many :groups do
-          fetch(roles: [:myself, :admin]) do
+          fetch(roles: %i(myself admin)) do
             resource.groups
           end
         end

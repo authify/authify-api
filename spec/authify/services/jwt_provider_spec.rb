@@ -79,10 +79,6 @@ describe Authify::API::Services::JWTProvider do
 
       let(:trusted_delegate_auth_data) do
         {
-          'delegate' => {
-            'access' => RSpec.configuration.trusted_delegate.access_key,
-            'secret' => RSpec.configuration.trusted_delegate.secret_key
-          },
           'provider' => RSpec.configuration.test_user_identity.provider,
           'uid' => RSpec.configuration.test_user_identity.uid
         }.to_json
@@ -136,6 +132,8 @@ describe Authify::API::Services::JWTProvider do
           it 'provides a usable JWT' do
             header 'Accept', 'application/json'
             header 'Content-Type', 'application/json'
+            header 'X-Authify-Access', RSpec.configuration.trusted_delegate.access_key
+            header 'X-Authify-Secret', RSpec.configuration.trusted_delegate.secret_key
             post '/token', trusted_delegate_auth_data
 
             # Should respond with a 200
