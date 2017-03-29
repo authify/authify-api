@@ -14,11 +14,11 @@ module Authify
           end
         end
 
-        index(roles: [:admin, :trusted]) do
+        index(roles: %i(admin trusted)) do
           Models::Identity.all
         end
 
-        show(roles: [:myself, :admin, :trusted]) do
+        show(roles: %i(myself admin trusted)) do
           last_modified resource.updated_at
           next resource
         end
@@ -30,7 +30,7 @@ module Authify
           next ident.id, ident
         end
 
-        destroy(roles: [:myself, :admin]) do
+        destroy(roles: %i(myself admin)) do
           resource.destroy
         end
 
@@ -39,7 +39,7 @@ module Authify
         end
 
         has_one :user do
-          pluck(roles: [:myself, :admin, :trusted]) do
+          pluck(roles: %i(myself admin trusted)) do
             resource.user
           end
         end
