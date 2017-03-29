@@ -33,29 +33,59 @@ module Authify
           via = @parsed_body[:via]
           password = @parsed_body[:password]
           name = @parsed_body[:name]
-          del_data = @parsed_body[:delegate]
-          trusted_delegate = if del_data
-                               Models::TrustedDelegate.from_access_key(
-                                 del_data[:access],
-                                 del_data[:secret]
-                               )
-                             end
 
           halt(422, 'Duplicate User') if Models::User.exists?(email: email)
-          halt(403, 'Password Required') unless password || trusted_delegate
+          halt(403, 'Password Required') unless password || remote_app
 
           new_user = Models::User.new(email: email)
           new_user.full_name = name if name
           new_user.password = password if password
-          if via && via[:provider]
+          if via && via[:provider] && remote_app
             new_user.identities.build(
               provider: via[:provider],
               uid: via[:uid] ? via[:uid] : email
             )
+            new_user.verified = true
+          else
+            new_user.set_verification_token!
           end
+
           new_user.save
           update_current_user new_user
-          { id: new_user.id, email: new_user.email, jwt: jwt_token(new_user) }.to_json
+
+          response = { id: new_user.id, email: new_user.email }
+          if new_user.verified?
+            response[:verified] = true
+            response[:jwt]      = jwt_token(new_user)
+          else
+            response[:verified] = false
+          end
+          response.to_json
+        end
+
+        post '/verify' do
+          email = @parsed_body[:email]
+          password = @parsed_body[:password]
+          token = @parsed_body[:token]
+
+          halt(422, 'Invalid User') unless Models::User.exists?(email: email)
+          halt(403, 'Missing Parameters') unless email && password && token
+
+          found_user = Models::User.find_by_email(email)
+          if found_user.authenticate(password) && found_user.verify(token)
+            found_user.verified = true
+          else
+            halt(422, 'Verification Failed')
+          end
+          found_user.save
+          update_current_user found_user
+
+          {
+            id: found_user.id,
+            email: found_user.email,
+            verified: found_user.verified?,
+            jwt: jwt_token(found_user)
+          }.to_json
         end
       end
     end

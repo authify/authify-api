@@ -68,6 +68,7 @@ RSpec.configure do |config|
     # Associate an identity with the user
     identity = Authify::API::Models::Identity.new(provider: 'facetube', uid: '12345')
     user.identities << identity
+    user.verified = true
     user.save
     RSpec.configuration.test_user = user
     RSpec.configuration.test_user_apikey = key

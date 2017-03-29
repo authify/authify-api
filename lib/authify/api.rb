@@ -2,6 +2,7 @@
 
 # External Requirements
 require 'authify/core'
+require 'authify/core/jobs/email'
 require 'authify/middleware'
 require 'sinatra/base'
 require 'sinatra/activerecord'
@@ -10,6 +11,7 @@ require 'sinatra/jsonapi'
 require 'tilt/erb'
 require 'connection_pool'
 require 'moneta'
+require 'resque'
 
 # Internal Requirements
 module Authify
@@ -25,6 +27,9 @@ module Authify
     )
   end
 end
+
+redis_config = Authify::API::CONFIG[:redis]
+Resque.redis = "#{redis_config[:host]}:#{redis_config[:port]}"
 
 require 'authify/api/version'
 require 'authify/api/jsonapi_utils'

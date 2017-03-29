@@ -24,10 +24,6 @@ describe Authify::API::Services::Registration do
           'via' => {
             'provider' => 'facetube',
             'uid'      => '23456'
-          },
-          'delegate' => {
-            'access' => RSpec.configuration.trusted_delegate.access_key,
-            'secret' => RSpec.configuration.trusted_delegate.secret_key
           }
         }
       end
@@ -44,7 +40,8 @@ describe Authify::API::Services::Registration do
           details = JSON.parse(last_response.body)
 
           expect(details.size).to eq(3)
-          expect(details).to have_key('jwt')
+          expect(details).to have_key('verified')
+          expect(details['verified']).to be(false)
           expect(details['email']).to eq(password_signup_data['email'])
           expect(details['id']).to eq(4)
         end
@@ -52,6 +49,8 @@ describe Authify::API::Services::Registration do
         it 'allows registration via delegate and identity' do
           header 'Accept', 'application/json'
           header 'Content-Type', 'application/json'
+          header 'X-Authify-Access', RSpec.configuration.trusted_delegate.access_key
+          header 'X-Authify-Secret', RSpec.configuration.trusted_delegate.secret_key
           post '/signup', identity_signup_data.to_json
 
           # Should respond with a 200
@@ -59,7 +58,9 @@ describe Authify::API::Services::Registration do
 
           details = JSON.parse(last_response.body)
 
-          expect(details.size).to eq(3)
+          expect(details.size).to eq(4)
+          expect(details).to have_key('verified')
+          expect(details['verified']).to be(true)
           expect(details).to have_key('jwt')
           expect(details['email']).to eq(identity_signup_data['email'])
           expect(details['id']).to eq(5)
