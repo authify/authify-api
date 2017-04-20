@@ -12,11 +12,11 @@ module Authify
         before '*' do
           content_type 'application/json'
           headers 'Access-Control-Allow-Origin' => '*',
-                  'Access-Control-Allow-Methods' => %w(
+                  'Access-Control-Allow-Methods' => %w[
                     OPTIONS
                     GET
                     POST
-                  )
+                  ]
 
           begin
             unless request.get? || request.options?

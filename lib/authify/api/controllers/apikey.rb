@@ -18,7 +18,7 @@ module Authify
           Models::APIKey.all
         end
 
-        show(roles: %i(myself admin)) do
+        show(roles: %i[myself admin]) do
           last_modified resource.updated_at
           next resource, exclude: [:secret_key]
         end
@@ -31,7 +31,7 @@ module Authify
           next key.id, key
         end
 
-        destroy(roles: %i(myself admin)) do
+        destroy(roles: %i[myself admin]) do
           resource.destroy
         end
 
@@ -40,7 +40,7 @@ module Authify
         end
 
         has_one :user do
-          pluck(roles: %i(myself admin)) do
+          pluck(roles: %i[myself admin]) do
             resource.user
           end
         end

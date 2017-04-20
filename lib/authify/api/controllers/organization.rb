@@ -15,7 +15,7 @@ module Authify
           end
 
           def modifiable_fields
-            %i(
+            %i[
               name
               public_email
               gravatar_email
@@ -23,7 +23,7 @@ module Authify
               description
               url
               location
-            )
+            ]
           end
 
           def filtered_attributes(attributes)
@@ -41,7 +41,7 @@ module Authify
           end
         end
 
-        index(roles: %i(admin user)) do
+        index(roles: %i[admin user]) do
           Models::Organization.includes(:users, :groups, :admins)
         end
 
@@ -72,29 +72,29 @@ module Authify
           next o.id, o
         end
 
-        update(roles: %i(owner admin)) do |attrs|
+        update(roles: %i[owner admin]) do |attrs|
           resource.update filtered_attributes(attrs)
           next resource
         end
 
-        destroy(roles: %i(owner admin)) do
+        destroy(roles: %i[owner admin]) do
           resource.destroy
         end
 
         has_many :users do
-          fetch(roles: %i(owner admin member)) do
+          fetch(roles: %i[owner admin member]) do
             resource.users
           end
         end
 
         has_many :admins do
-          fetch(roles: %i(owner admin member)) do
+          fetch(roles: %i[owner admin member]) do
             resource.admins
           end
         end
 
         has_many :groups do
-          fetch(roles: %i(owner admin member)) do
+          fetch(roles: %i[owner admin member]) do
             resource.groups
           end
         end

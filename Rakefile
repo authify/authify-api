@@ -12,7 +12,7 @@ end
 RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new(:rubocop)
 
-task default: %i(spec rubocop)
+task default: %i[spec rubocop]
 
 desc 'Start the demo using `rackup`'
 task :start do
