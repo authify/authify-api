@@ -104,7 +104,7 @@ describe Authify::API::Services::Registration do
 
           # Should respond with a 200
           expect(last_response.status).to eq(200)
-          expect(last_response.body).to eq('')
+          expect(last_response.body).to eq('{}')
           expect(
             Authify::API::Models::User.find_by_email(
               forgot_password_data['email']
@@ -140,7 +140,7 @@ describe Authify::API::Services::Registration do
 
           # Should respond with a 200
           expect(last_response.status).to eq(200)
-          expect(last_response.body).to eq('')
+          expect(last_response.body).to eq('{}')
         end
       end
     end

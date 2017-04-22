@@ -66,7 +66,7 @@ module Authify
         post '/forgot_password' do
           email = @parsed_body[:email]
           token = @parsed_body[:token]
-          halt(200) unless Models::User.exists?(email: email)
+          halt(200, '{}') unless Models::User.exists?(email: email)
           halt(403, 'Missing Parameters') unless email
 
           found_user = Models::User.find_by_email(email)
@@ -84,7 +84,7 @@ module Authify
             found_user.verified = false
             found_user.set_verification_token!
             found_user.save
-            halt(200)
+            halt(200, '{}')
           end
         end
 
