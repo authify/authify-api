@@ -63,6 +63,31 @@ module Authify
           response.to_json
         end
 
+        post '/forgot_password' do
+          email = @parsed_body[:email]
+          token = @parsed_body[:token]
+          halt(200, '{}') unless Models::User.exists?(email: email)
+          halt(403, 'Missing Parameters') unless email
+
+          found_user = Models::User.find_by_email(email)
+          if token && @parsed_body[:password] && found_user.verify(token)
+            found_user.verified = true
+            found_user.password = @parsed_body[:password]
+            found_user.save
+            {
+              id: found_user.id,
+              email: found_user.email,
+              verified: found_user.verified?,
+              jwt: jwt_token(found_user)
+            }.to_json
+          else
+            found_user.verified = false
+            found_user.set_verification_token!
+            found_user.save
+            halt(200, '{}')
+          end
+        end
+
         post '/verify' do
           email = @parsed_body[:email]
           password = @parsed_body[:password]
