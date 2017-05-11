@@ -56,7 +56,7 @@ module Authify
           response = { id: new_user.id, email: new_user.email }
           if new_user.verified?
             response[:verified] = true
-            response[:jwt]      = jwt_token(new_user)
+            response[:jwt]      = jwt_token(user: new_user)
           else
             response[:verified] = false
           end
@@ -78,7 +78,7 @@ module Authify
               id: found_user.id,
               email: found_user.email,
               verified: found_user.verified?,
-              jwt: jwt_token(found_user)
+              jwt: jwt_token(user: found_user)
             }.to_json
           else
             found_user.verified = false
@@ -109,7 +109,7 @@ module Authify
             id: found_user.id,
             email: found_user.email,
             verified: found_user.verified?,
-            jwt: jwt_token(found_user)
+            jwt: jwt_token(user: found_user)
           }.to_json
         end
       end
