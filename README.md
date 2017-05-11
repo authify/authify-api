@@ -21,7 +21,7 @@ Nearly all API endpoints available via Authify implement the [{json:api}](http:/
 
 * `GET /jwt/key` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the key `data` whose value is a PEM-encoded ECDSA public key, which should be used to verify the signature made by the Authify service.
 * `GET /jwt/meta` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the keys `algorithm`, `issuer`, and `expiration` that describe the kind of JWTs produced by this service.
-* `POST /jwt/token` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to obtain a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token). This endpoint expects a JSON Object with either the keys `access_key` and `secret_key` _OR_ `email` and `password`. There is no firm requirement to use either pair for any particular purpose, but for scenarios where the credentials may be stored, the `access_key` and `secret_key` may be used since those can easily be revoked if necessary. Upon successful authentication, the endpoint provides a JSON Object with the key `jwt` and a signed JWT. There should be nothing highly sensitive embedded in the JWT. The JWT defaults to expiring every 15 minutes.
+* `POST /jwt/token` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to obtain a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token). This endpoint expects a JSON Object with either the keys `access_key` and `secret_key` _OR_ `email` and `password`. There is no firm requirement to use either pair for any particular purpose, but for scenarios where the credentials may be stored, the `access_key` and `secret_key` may be used since those can easily be revoked if necessary. Upon successful authentication, the endpoint provides a JSON Object with the key `jwt` and a signed JWT. There should be nothing highly sensitive embedded in the JWT. The JWT defaults to expiring every 15 minutes. This endpoint also allows optionally specifying a key called `inject` with a JSON object as a value. This JSON object will then be injected into a top-level `custom` key in the returned JWT _as is_.
 * `POST /registration/signup` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to signup for an account with Authify. This endpoint expects a JSON Object, requiring the keys `email` and `password`, with `name` and `via` being optional. If `via` is provided, then it must be a JSON Object with the keys `provider` and `uid`, otherwise it will be ignored. The `via` key is used to add an alternate identity (meaning they logged-in through an integration, like Github), and is only trusted from trusted delegates (meaning it will be ignored for anonymous calls to this endpoint). This endpoint returns a JSON Object with the keys `id`, `email`, and `verified`, on success. If the user is registered by a trusted delegate *and* `via` options were provided, the users is implicitly trusted and a `jwt` key will also be provided for authentication.
 * `POST /registration/verify` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to verify a registered user's email address. This endpoint expects a JSON Object, requiring the keys `email`, `password`, and `token`. This endpoint returns a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success.
 * `POST /registration/forgot_password` - Returns (and only accepts) Content Type: `application/json`. This endpoint serves two related purposes: it is used to trigger resetting a forgotten (or non-existent) password and it is used to actually set the value of a user's password. The difference in which operation is performed is based on the POST data. When provided a JSON Object with only the key `email`, the endpoint sends the user an email with a verification token, returning an empty JSON Object as a result. When provided a JSON Object with the keys `email`, `password`, and `token`, the endpoint verifies that the token matches, then sets the user's password, returning a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success.
@@ -225,6 +225,25 @@ The server will return something like:
 ```javascript
 {"jwt":"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB"}
 ```
+
+You can also request that the server inject some custom payload data into the JWT:
+
+```shell
+curl \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  --data \
+  '{
+    "access_key": "5f4abd1c6423ef02d1ec42e1cddaf5f8",
+    "secret_key": "fb97aa7d4e48f3e4bbb2930161a423fa8308393426c3612940da03f22cf36879",
+    "inject": {
+      "foo": "bar"
+    }
+   }' \
+  https://auth.mycompany.com/jwt/token
+```
+
+This can be useful for loosely coupling services that need to exchange small amounts of (preferably encrypted) data. This data is arbitrary and Authify does nothing to validate it. It simply injects it into the payload before it is signed, so don't assume nefarious users can't spoof things. You'll likely need to do something to make the data verifiable on the receiving end.
 
 #### Use the JWT to Access a Protected Resource
 
