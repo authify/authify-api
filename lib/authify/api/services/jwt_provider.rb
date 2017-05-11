@@ -38,6 +38,8 @@ module Authify
           # For Trusted Delegates signing users in via omniauth
           omni_provider = @parsed_body[:provider]
           omni_uid = @parsed_body[:uid]
+          # Allows injecting custom payload data
+          custom_data = @parsed_body[:inject] || {}
 
           found_user = if access
                          Models::User.from_api_key(access, secret)
@@ -49,7 +51,7 @@ module Authify
 
           if found_user
             update_current_user found_user
-            { jwt: jwt_token }.to_json
+            { jwt: jwt_token(custom_data: custom_data) }.to_json
           else
             halt 401
           end

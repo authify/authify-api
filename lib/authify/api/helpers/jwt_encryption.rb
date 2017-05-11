@@ -5,13 +5,13 @@ module Authify
       module JWTEncryption
         include Core::Helpers::JWTSSL
 
-        def jwt_token(user = nil)
+        def jwt_token(user: nil, custom_data: {})
           user ||= current_user
-          JWT.encode jwt_payload(user), private_key, CONFIG[:jwt][:algorithm]
+          JWT.encode jwt_payload(user, custom_data), private_key, CONFIG[:jwt][:algorithm]
         end
 
-        def jwt_payload(user)
-          {
+        def jwt_payload(user, custom_data)
+          data = {
             exp: Time.now.to_i + 60 * CONFIG[:jwt][:expiration].to_i,
             iat: Time.now.to_i,
             iss: CONFIG[:jwt][:issuer],
@@ -24,6 +24,8 @@ module Authify
               organizations: simple_orgs_by_user(user)
             }
           }
+          data[:custom] = custom_data if custom_data && !custom_data.empty?
+          data
         end
 
         def simple_orgs_by_user(user)

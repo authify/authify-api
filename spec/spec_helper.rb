@@ -123,13 +123,13 @@ RSpec.configure do |config|
     RSpec.configuration.group = group
 
     # A user JWT for authentication
-    RSpec.configuration.test_user_token = jwt_token(user)
+    RSpec.configuration.test_user_token = jwt_token(user: user)
 
     # A user JWT for authentication
-    RSpec.configuration.bad_user_token = jwt_token(bad_user)
+    RSpec.configuration.bad_user_token = jwt_token(user: bad_user)
 
     # An admin JWT for authentication
-    RSpec.configuration.admin_user_token = jwt_token(admin_user)
+    RSpec.configuration.admin_user_token = jwt_token(user: admin_user)
   end
 
   config.after(:suite) do

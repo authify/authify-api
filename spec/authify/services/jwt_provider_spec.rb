@@ -70,6 +70,14 @@ describe Authify::API::Services::JWTProvider do
         }.to_json
       end
 
+      let(:api_auth_with_custom_payload_data) do
+        {
+          'access-key' => RSpec.configuration.test_user_apikey.access_key,
+          'secret-key' => RSpec.configuration.test_user_apikey.secret_key,
+          'inject' => { 'foo' => 'bar' }
+        }.to_json
+      end
+
       let(:user_auth_data) do
         {
           'email' => RSpec.configuration.test_user.email,
@@ -82,6 +90,15 @@ describe Authify::API::Services::JWTProvider do
           'provider' => RSpec.configuration.test_user_identity.provider,
           'uid' => RSpec.configuration.test_user_identity.uid
         }.to_json
+      end
+
+      let(:jwt_options) do
+        {
+          algorithm: ENV['AUTHIFY_JWT_ALGORITHM'],
+          verify_iss: true,
+          verify_iat: true,
+          iss: 'My Awesome Company Inc.'
+        }
       end
 
       context 'POST /token' do
@@ -143,6 +160,26 @@ describe Authify::API::Services::JWTProvider do
 
             expect(details.size).to eq(1)
             expect(details).to have_key('jwt')
+          end
+        end
+
+        context 'when injecting custom payload data' do
+          it 'provides a usable JWT with custom payload data' do
+            header 'Accept', 'application/json'
+            header 'Content-Type', 'application/json'
+            post '/token', api_auth_with_custom_payload_data
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details.size).to eq(1)
+            expect(details).to have_key('jwt')
+
+            data = JWT.decode(details['jwt'], public_key, true, jwt_options)[0]
+            expect(data).to have_key('custom')
+            expect(data['custom']).to eq('foo' => 'bar')
           end
         end
       end
