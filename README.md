@@ -83,7 +83,7 @@ File.write(File.expand_path('/path/to/keys/private.pem'), secret_key.to_pem)
 public_key = secret_key
 public_key.private_key = nil
 # write out the public key to a file...
-File.write(File.expand_path('/path/to/keys/public.pem'), private_key.to_pem)
+File.write(File.expand_path('/path/to/keys/public.pem'), public_key.to_pem)
 ```
 
 Using the OpenSSL CLI tool:
