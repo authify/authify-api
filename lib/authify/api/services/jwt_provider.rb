@@ -3,6 +3,8 @@ module Authify
     module Services
       # A Sinatra App specifically for managing JWT tokens
       class JWTProvider < Service
+        use Authify::API::Middleware::Metrics
+
         helpers Helpers::APIUser
 
         configure do
@@ -51,6 +53,7 @@ module Authify
 
           if found_user
             update_current_user found_user
+            Metrics.instance.increment('jwt.tokens.provided')
             { jwt: jwt_token(custom_data: custom_data) }.to_json
           else
             halt 401

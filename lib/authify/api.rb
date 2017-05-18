@@ -12,6 +12,7 @@ require 'tilt/erb'
 require 'connection_pool'
 require 'moneta'
 require 'resque'
+require 'hitimes'
 
 # Internal Requirements
 module Authify
@@ -53,6 +54,9 @@ require 'authify/api/models/user'
 require 'authify/api/helpers/jwt_encryption'
 require 'authify/api/helpers/api_user'
 require 'authify/api/service'
+require 'authify/api/metrics'
+require 'authify/api/middleware/metrics'
 require 'authify/api/services/api'
 require 'authify/api/services/jwt_provider'
 require 'authify/api/services/registration'
+require 'authify/api/services/monitoring'
