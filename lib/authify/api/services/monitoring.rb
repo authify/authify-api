@@ -14,6 +14,14 @@ module Authify
                     OPTIONS
                     GET
                     POST
+                  ],
+                  'Access-Control-Allow-Headers' => %w[
+                    Origin
+                    Accept
+                    X-Requested-With
+                    Content-Type
+                    Access-Control-Request-Method
+                    Access-Control-Request-Headers
                   ]
 
           begin
