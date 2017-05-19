@@ -10,7 +10,7 @@ module Authify
         end
 
         def call(env)
-          path = env['PATH_INFO']
+          path = Rack::Request.new(env).path.gsub(%r{/}, '.')
           routing_args = env['rack.routing_args'] || {}
           path = path.dup.tap do |old_path|
             routing_args.except(:format, :namespace, :catch).each do |param, arg|
@@ -18,13 +18,13 @@ module Authify
             end
           end
 
-          metric_name = "#{@key}.time.#{env['REQUEST_METHOD'].downcase}.#{path}"
+          metric_name = "#{@key}.time.#{env['REQUEST_METHOD'].downcase}#{path}"
 
           status, header, body = @metrics.time(metric_name) do
             @app.call env
           end
 
-          @metrics.increment "#{@key}.count.#{env['REQUEST_METHOD'].downcase}.#{path}"
+          @metrics.increment "#{@key}.count.#{env['REQUEST_METHOD'].downcase}#{path}"
 
           [status, header, body]
         end

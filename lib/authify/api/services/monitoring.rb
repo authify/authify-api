@@ -30,10 +30,14 @@ module Authify
         get '/info' do
           metrics = Metrics.instance
           output = {}
-          metrics.each_pair do |key, value|
+          metrics.each do |key, value|
             output[key] = value
           end
           output.to_json
+        end
+
+        options '/info' do
+          halt 200
         end
       end
     end

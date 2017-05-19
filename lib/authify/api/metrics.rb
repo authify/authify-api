@@ -33,6 +33,10 @@ module Authify
         result
       end
 
+      def each(&block)
+        storage.each(&block)
+      end
+
       private
 
       def write_lock
