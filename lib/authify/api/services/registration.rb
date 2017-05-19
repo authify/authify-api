@@ -3,6 +3,7 @@ module Authify
     module Services
       # A Sinatra App specifically for registering with the system
       class Registration < Service
+        use Authify::API::Middleware::Metrics
         helpers Helpers::APIUser
 
         configure do
@@ -78,6 +79,7 @@ module Authify
             found_user.verified = true
             found_user.password = @parsed_body[:password]
             found_user.save
+            Metrics.instance.increment('registration.password.resets')
             {
               id: found_user.id,
               email: found_user.email,
