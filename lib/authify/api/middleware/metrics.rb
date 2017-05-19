@@ -10,23 +10,23 @@ module Authify
         end
 
         def call(env)
-          path = Rack::Request.new(env).path.gsub(%r{/}, '.')
-          routing_args = env['rack.routing_args'] || {}
-          path = path.dup.tap do |old_path|
-            routing_args.except(:format, :namespace, :catch).each do |param, arg|
-              old_path.sub!(arg.to_s, ":#{param}")
-            end
-          end
-
-          metric_name = "#{@key}.time.#{env['REQUEST_METHOD'].downcase}#{path}"
-
-          status, header, body = @metrics.time(metric_name) do
+          status, header, body = @metrics.time(construct_metric_key('time', env)) do
             @app.call env
           end
 
-          @metrics.increment "#{@key}.count.#{env['REQUEST_METHOD'].downcase}#{path}"
+          @metrics.increment construct_metric_key('count', env)
 
           [status, header, body]
+        end
+
+        private
+
+        def construct_metric_key(type, env)
+          path = Rack::Request.new(env)
+                              .path.gsub(%r{/([0-9]+)(/?)}, '/:id\2')
+                              .gsub(%r{/}, '.')
+                              .chomp('.')
+          "#{@key}.#{type}.#{env['REQUEST_METHOD'].downcase}#{path}"
         end
       end
     end
