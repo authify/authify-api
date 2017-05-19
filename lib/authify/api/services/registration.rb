@@ -63,6 +63,10 @@ module Authify
           response.to_json
         end
 
+        options '/signup' do
+          halt 200
+        end
+
         post '/forgot_password' do
           email = @parsed_body[:email]
           token = @parsed_body[:token]
@@ -88,6 +92,10 @@ module Authify
           end
         end
 
+        options '/forgot_password' do
+          halt 200
+        end
+
         post '/verify' do
           email = @parsed_body[:email]
           password = @parsed_body[:password]
@@ -111,6 +119,10 @@ module Authify
             verified: found_user.verified?,
             jwt: jwt_token(user: found_user)
           }.to_json
+        end
+
+        options '/verify' do
+          halt 200
         end
       end
     end
