@@ -18,10 +18,17 @@ module Authify
                   'Access-Control-Allow-Headers' => %w[
                     Origin
                     Accept
-                    X-Requested-With
-                    Content-Type
-                    Access-Control-Request-Method
+                    Accept-Encoding
+                    Accept-Language
                     Access-Control-Request-Headers
+                    Access-Control-Request-Method
+                    Connection
+                    Content-Type
+                    Host
+                    Referer
+                    User-Agent
+                    X-Requested-With
+                    X-Forwarded-For
                   ]
 
           begin

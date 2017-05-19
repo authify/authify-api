@@ -22,11 +22,17 @@ module Authify
                   'Access-Control-Allow-Headers' => %w[
                     Origin
                     Accept
+                    Accept-Encoding
+                    Accept-Language
+                    Access-Control-Request-Headers
+                    Access-Control-Request-Method
+                    Connection
+                    Content-Type
+                    Host
+                    Referer
+                    User-Agent
                     X-Requested-With
                     X-Forwarded-For
-                    Content-Type
-                    Access-Control-Request-Method
-                    Access-Control-Request-Headers
                   ]
 
           begin
