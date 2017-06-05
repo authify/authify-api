@@ -5,15 +5,11 @@ module Authify
       include Singleton
 
       def update(key, value)
-        write_lock do
-          storage[key] = value
-        end
+        storage[key] = value
       end
 
       def increment(key, change = 1)
-        write_lock do
-          storage.key?(key) ? storage[key] += change : storage[key] = change
-        end
+        storage.key?(key) ? storage[key] += change : storage[key] = change
       end
 
       def decrement(key, change = 1)
@@ -38,13 +34,6 @@ module Authify
       end
 
       private
-
-      def write_lock
-        @wlock ||= Mutex.new
-        @wlock.synchronize do
-          yield
-        end
-      end
 
       def storage
         # While not perfectly thread-safe, this works well enough for Metrics

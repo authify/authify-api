@@ -15,6 +15,7 @@ module Authify
           end
 
           @metrics.increment construct_metric_key('count', env)
+          @metrics.increment 'rack.request.count'
 
           [status, header, body]
         end
