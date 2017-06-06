@@ -5,6 +5,7 @@ module Authify
       class User < ActiveRecord::Base
         include Core::SecureHashing
         include JSONAPIUtils
+        include Helpers::TextProcessing
 
         attr_reader :password
 
@@ -49,22 +50,31 @@ module Authify
         end
 
         # Both sets a token in the DB *and* emails it to the user
-        def set_verification_token!
+        def add_verification_token!(opts = {})
           return false if verified?
           token = peppered_sha512(rand(999).to_s)[0...16]
-          valid_until = (Time.now + (15 * 60)).to_i
+          valid_time  = Time.now + (15 * 60)
+          valid_until = valid_time.to_i
           self.verification_token = "#{token}:#{valid_until}"
 
+          subdata = { token: token, valid_until: valid_time }
+
           email_opts = {
-            body: "Your verification token is: #{token}"
+            body: if opts.key?(:body)
+                    dehandlebar(opts[:body], subdata)
+                  else
+                    "Your verification token is: #{token}"
+                  end
           }
 
-          Resque.enqueue(
-            Authify::Core::Jobs::Email,
-            email,
-            'Authify Verification Email',
-            email_opts
-          )
+          email_opts[:html_body] = dehandlebar(opts[:html_body], subdata) if opts.key?(:html_body)
+          subject = if opts.key?(:subject)
+                      dehandlebar(opts[:subject], subdata)
+                    else
+                      'Authify Verification Email'
+                    end
+
+          Resque.enqueue Authify::Core::Jobs::Email, email, subject, email_opts
         end
 
         def admin_for?(organization)
