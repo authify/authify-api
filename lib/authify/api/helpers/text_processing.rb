@@ -14,7 +14,7 @@ module Authify
         # Interpolates handlebars-style templates
         # OPTIMIZE: this can probably be faster
         def dehandlebar(text, data = {})
-          text.gsub(/{{([a-z0-9_-]+)}}/) { data[Regexp.last_match[1].to_sym] }
+          text.gsub(/{{([a-z0-9_-]+)}}/) { data[Regexp.last_match[1].to_sym].to_s }
         end
 
         def human_readable(text)
