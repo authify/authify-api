@@ -135,5 +135,7 @@ RSpec.configure do |config|
   config.after(:suite) do
     FileUtils.rm_rf File.dirname(ENV['AUTHIFY_PUBKEY_PATH'])
     FileUtils.mv File.join('db', 'schema.rb.orig'), File.join('db', 'schema.rb')
+    # Clean up redis
+    Resque.queues.each { |q| Resque.redis.del "queue:#{q}" }
   end
 end

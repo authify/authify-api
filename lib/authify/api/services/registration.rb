@@ -5,6 +5,7 @@ module Authify
       class Registration < Service
         use Authify::API::Middleware::Metrics
         helpers Helpers::APIUser
+        helpers Helpers::TextProcessing
 
         configure do
           set :protection, except: :http_origin
@@ -49,6 +50,7 @@ module Authify
           via = @parsed_body[:via]
           password = @parsed_body[:password]
           name = @parsed_body[:name]
+          templates = @parsed_body[:templates]
 
           halt(422, 'Duplicate User') if Models::User.exists?(email: email)
           halt(403, 'Password Required') unless password || remote_app
@@ -58,12 +60,13 @@ module Authify
           new_user.password = password if password
           if via && via[:provider] && remote_app
             new_user.identities.build(
-              provider: via[:provider],
-              uid: via[:uid] ? via[:uid] : email
+              provider: via[:provider], uid: via[:uid] ? via[:uid] : email
             )
             new_user.verified = true
+          elsif templates && templates.key?(:email)
+            new_user.add_verification_token!(decoded_hash(templates[:email]))
           else
-            new_user.set_verification_token!
+            new_user.add_verification_token!
           end
 
           new_user.save
@@ -86,6 +89,8 @@ module Authify
         post '/forgot_password' do
           email = @parsed_body[:email]
           token = @parsed_body[:token]
+          templates = @parsed_body[:templates]
+
           halt(200, '{}') unless Models::User.exists?(email: email)
           halt(403, 'Missing Parameters') unless email
 
@@ -103,7 +108,11 @@ module Authify
             }.to_json
           else
             found_user.verified = false
-            found_user.set_verification_token!
+            if templates && templates.key?(:email)
+              found_user.add_verification_token!(decoded_hash(templates[:email]))
+            else
+              found_user.add_verification_token!
+            end
             found_user.save
             halt(200, '{}')
           end

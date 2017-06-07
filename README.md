@@ -22,9 +22,9 @@ Nearly all API endpoints available via Authify implement the [{json:api}](http:/
 * `GET /jwt/key` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the key `data` whose value is a PEM-encoded ECDSA public key, which should be used to verify the signature made by the Authify service.
 * `GET /jwt/meta` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the keys `algorithm`, `issuer`, and `expiration` that describe the kind of JWTs produced by this service.
 * `POST /jwt/token` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to obtain a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token). This endpoint expects a JSON Object with either the keys `access_key` and `secret_key` _OR_ `email` and `password`. There is no firm requirement to use either pair for any particular purpose, but for scenarios where the credentials may be stored, the `access_key` and `secret_key` may be used since those can easily be revoked if necessary. Upon successful authentication, the endpoint provides a JSON Object with the key `jwt` and a signed JWT. There should be nothing highly sensitive embedded in the JWT. The JWT defaults to expiring every 15 minutes. This endpoint also allows optionally specifying a key called `inject` with a JSON object as a value. This JSON object will then be injected into a top-level `custom` key in the returned JWT _as is_.
-* `POST /registration/signup` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to signup for an account with Authify. This endpoint expects a JSON Object, requiring the keys `email` and `password`, with `name` and `via` being optional. If `via` is provided, then it must be a JSON Object with the keys `provider` and `uid`, otherwise it will be ignored. The `via` key is used to add an alternate identity (meaning they logged-in through an integration, like Github), and is only trusted from trusted delegates (meaning it will be ignored for anonymous calls to this endpoint). This endpoint returns a JSON Object with the keys `id`, `email`, and `verified`, on success. If the user is registered by a trusted delegate *and* `via` options were provided, the users is implicitly trusted and a `jwt` key will also be provided for authentication.
+* `POST /registration/signup` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to signup for an account with Authify. This endpoint expects a JSON Object, requiring the keys `email` and `password`, with `name` and `via` being optional. If `via` is provided, then it must be a JSON Object with the keys `provider` and `uid`, otherwise it will be ignored. The `via` key is used to add an alternate identity (meaning they logged-in through an integration, like Github), and is only trusted from trusted delegates (meaning it will be ignored for anonymous calls to this endpoint). This endpoint returns a JSON Object with the keys `id`, `email`, and `verified`, on success. If the user is registered by a trusted delegate *and* `via` options were provided, the users is implicitly trusted and a `jwt` key will also be provided for authentication. This endpoint allows customization of the emails sent for users requiring verification. For information on how this works, see the [Templating](#templating) section. The following template expressions are available: `token` and `valid_until`.
 * `POST /registration/verify` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to verify a registered user's email address. This endpoint expects a JSON Object, requiring the keys `email`, `password`, and `token`. This endpoint returns a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success.
-* `POST /registration/forgot_password` - Returns (and only accepts) Content Type: `application/json`. This endpoint serves two related purposes: it is used to trigger resetting a forgotten (or non-existent) password and it is used to actually set the value of a user's password. The difference in which operation is performed is based on the POST data. When provided a JSON Object with only the key `email`, the endpoint sends the user an email with a verification token, returning an empty JSON Object as a result. When provided a JSON Object with the keys `email`, `password`, and `token`, the endpoint verifies that the token matches, then sets the user's password, returning a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success.
+* `POST /registration/forgot_password` - Returns (and only accepts) Content Type: `application/json`. This endpoint serves two related purposes: it is used to trigger resetting a forgotten (or non-existent) password and it is used to actually set the value of a user's password. The difference in which operation is performed is based on the POST data. When provided a JSON Object with only the key `email`, the endpoint sends the user an email with a verification token, returning an empty JSON Object as a result. When provided a JSON Object with the keys `email`, `password`, and `token`, the endpoint verifies that the token matches, then sets the user's password, returning a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success. This endpoint allows customization of the emails sent for users requiring verification. For information on how this works, see the [Templating](#templating) section. The following template expressions are available: `token` and `valid_until`.
 
 All other endpoints adhere to the {json:api} specification and can be found at the following base paths:
 
@@ -109,7 +109,7 @@ curl \
   '{
     "name": "Some User",
     "email": "someuser@mycompany.com",
-    "password": "b@d!dea",
+    "password": "b@d!dea"
   }' \
   https://auth.mycompany.com/registration/signup
 ```
@@ -252,6 +252,70 @@ curl \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB" \
   -H 'Accept: application/vnd.api+json' \
   https://auth.mycompany.com/organizations
+```
+
+### Templating
+
+Some endpoints support custom templates (and other customizations) for communications sent out to users. This is most useful for services that integrate with Authify but wrap that integration in their own UI.
+
+If an endpoint declares that it supports templating (such as `/registration/signup`), what this means is that the JSON `POST` data can include an optional `templates` key. To customize the plaintext email body and subject, you can change a `POST` from something like this:
+
+```javascript
+{
+  "name": "Some User",
+  "email": "someuser@mycompany.com",
+  "password": "b@d!dea"
+}
+```
+
+to include a `templates` section like this:
+
+```javascript
+{
+  "name": "Some User",
+  "email": "someuser@mycompany.com",
+  "password": "b@d!dea",
+  "templates": {
+    "email": {
+      "body": "Your code is: '{{token}}' and it is valid until {{valid_until}}.",
+      "subject": "Verification Code"
+    }
+  }
+}
+```
+
+Authify's templating supports something that looks a bit like [Handlebars](http://handlebarsjs.com/) templating (though it doesn't yet support most of the Handlebars features). This is useful for allowing the injection of dynamic data into your templates. Available expressions should be declared in the README section that describes a template-capable endpoint.
+
+For some template data, escaping can be difficult or inconvenient. For these situations, Authify supports optional [Base64](https://en.wikipedia.org/wiki/Base64) encoding of values. To provide a Base64-encoded value, just declare it as such using `{base64}` followed by the data:
+
+```javascript
+{
+  "name": "Some User",
+  "email": "someuser@mycompany.com",
+  "password": "b@d!dea",
+  "templates": {
+    "email": {
+      "body": "{base64}WW91ciBjb2RlIGlzOiAne3t0b2tlbn19JyBhbmQgaXQgaXMgdmFsaWQgdW50aWwge3t2YWxpZF91bnRpbH19Lg==",
+      "subject": "Verification Code"
+    }
+  }
+}
+```
+
+Encoded template data still supports the Handlebars-style templating, but it must be applied _before_ the content is Base64-encoded.
+
+#### Template Types
+
+Currently, only email communications can be templated. The following keys are available for email templates:
+
+```javascript
+"templates": {
+  "email": {
+    "subject": "The subject of the email",
+    "body": "The plaintext body of the email",
+    "html_body": "<p>An <a href=\"https://en.wikipedia.org/wiki/HTML\">HTML</a> body.</p>"
+  }
+}
 ```
 
 ## Contributing

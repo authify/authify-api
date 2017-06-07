@@ -28,6 +28,18 @@ describe Authify::API::Services::Registration do
         }
       end
 
+      let(:signup_with_template_data) do
+        {
+          'email'     => 'template.user@example.com',
+          'password'  => 'templateuser1234',
+          'templates' => {
+            'email' => {
+              'body' => 'Your code is: {{token}}'
+            }
+          }
+        }
+      end
+
       context 'POST /signup' do
         it 'allows registration via email and password' do
           header 'Accept', 'application/json'
@@ -44,6 +56,26 @@ describe Authify::API::Services::Registration do
           expect(details['verified']).to be(false)
           expect(details['email']).to eq(password_signup_data['email'])
           expect(details['id']).to eq(4)
+        end
+
+        it 'allows registration via email and password and an email body template' do
+          header 'Accept', 'application/json'
+          header 'Content-Type', 'application/json'
+          post '/signup', signup_with_template_data.to_json
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+
+          details = JSON.parse(last_response.body)
+
+          expect(details.size).to eq(3)
+          expect(details).to have_key('verified')
+          expect(details['verified']).to be(false)
+          expect(details['email']).to eq(signup_with_template_data['email'])
+          expect(details['id']).to eq(5)
+          expect(
+            Resque.sample_queues['mailer'][:samples].last['args'].last['body']
+          ).to match(/^Your code is: [a-z0-9]+$/)
         end
 
         it 'allows registration via delegate and identity' do
@@ -63,7 +95,7 @@ describe Authify::API::Services::Registration do
           expect(details['verified']).to be(true)
           expect(details).to have_key('jwt')
           expect(details['email']).to eq(identity_signup_data['email'])
-          expect(details['id']).to eq(5)
+          expect(details['id']).to eq(6)
         end
       end
     end
