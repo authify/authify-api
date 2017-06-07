@@ -40,6 +40,16 @@ describe Authify::API::Services::Registration do
         }
       end
 
+      context 'OPTIONS /signup' do
+        it 'returns 200 with expected headers' do
+          options '/signup'
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+          expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+        end
+      end
+
       context 'POST /signup' do
         it 'allows registration via email and password' do
           header 'Accept', 'application/json'

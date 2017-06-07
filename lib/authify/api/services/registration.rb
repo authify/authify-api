@@ -11,29 +11,8 @@ module Authify
           set :protection, except: :http_origin
         end
 
-        before '*' do
+        before do
           content_type 'application/json'
-          headers 'Access-Control-Allow-Origin' => '*',
-                  'Access-Control-Allow-Methods' => %w[
-                    OPTIONS
-                    GET
-                    POST
-                  ],
-                  'Access-Control-Allow-Headers' => %w[
-                    Origin
-                    Accept
-                    Accept-Encoding
-                    Accept-Language
-                    Access-Control-Request-Headers
-                    Access-Control-Request-Method
-                    Connection
-                    Content-Type
-                    Host
-                    Referer
-                    User-Agent
-                    X-Requested-With
-                    X-Forwarded-For
-                  ]
 
           begin
             unless request.get? || request.options?
@@ -43,6 +22,28 @@ module Authify
           rescue => e
             halt(400, { error: "Request must be valid JSON: #{e.message}" }.to_json)
           end
+        end
+
+        after do
+          headers 'Access-Control-Allow-Origin' => '*',
+                  'Access-Control-Allow-Methods' => %w[OPTIONS GET POST],
+                  'Access-Control-Allow-Headers' => %w[
+                    Origin
+                    Accept
+                    Accept-Encoding
+                    Accept-Language
+                    Access-Control-Request-Headers
+                    Access-Control-Request-Method
+                    Authorization
+                    Connection
+                    Content-Type
+                    Host
+                    Referer
+                    User-Agent
+                    X-Requested-With
+                    X-Forwarded-For
+                    X-XSRF-Token
+                  ]
         end
 
         post '/signup' do

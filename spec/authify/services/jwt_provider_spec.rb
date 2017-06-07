@@ -23,6 +23,16 @@ describe Authify::API::Services::JWTProvider do
         File.read(ENV['AUTHIFY_PUBKEY_PATH'])
       end
 
+      context 'OPTIONS /meta' do
+        it 'returns 200 with expected headers' do
+          options '/meta'
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+          expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+        end
+      end
+
       context 'GET /meta' do
         it 'provides JWT meta information' do
           header 'Accept', 'application/json'
