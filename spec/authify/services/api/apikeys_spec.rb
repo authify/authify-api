@@ -30,6 +30,16 @@ describe Authify::API::Services::API do
       }
     end
 
+    context 'OPTIONS /apikeys' do
+      it 'returns 200 with expected headers' do
+        options '/apikeys'
+
+        # Should respond with a 200
+        expect(last_response.status).to eq(200)
+        expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+      end
+    end
+
     context 'GET /apikeys' do
       it 'requires authentication' do
         header 'Accept', 'application/vnd.api+json'

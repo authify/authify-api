@@ -29,17 +29,38 @@ module Authify
           end
         end
 
-        before '*' do
-          # headers 'Access-Control-Allow-Origin' => '*',
-          #        'Access-Control-Allow-Methods' => %w(
-          #          OPTIONS
-          #          DELETE
-          #          GET
-          #          PATCH
-          #          POST
-          #          PUT
-          #        )
+        before do
           determine_roles
+        end
+
+        after do
+          headers 'Access-Control-Allow-Origin' => '*',
+                  'Access-Control-Allow-Methods' => response['Allow'] || %w[
+                    OPTIONS
+                    GET
+                    POST
+                    PUT
+                    PATCH
+                    DELETE
+                    HEAD
+                  ],
+                  'Access-Control-Allow-Headers' => %w[
+                    Origin
+                    Accept
+                    Accept-Encoding
+                    Accept-Language
+                    Access-Control-Request-Headers
+                    Access-Control-Request-Method
+                    Authorization
+                    Connection
+                    Content-Type
+                    Host
+                    Referer
+                    User-Agent
+                    X-Requested-With
+                    X-Forwarded-For
+                    X-XSRF-Token
+                  ]
         end
 
         resource :apikeys, &Controllers::APIKey
