@@ -1,5 +1,4 @@
 # Standard Library Requirements
-require 'ostruct'
 
 # External Requirements
 require 'authify/core'

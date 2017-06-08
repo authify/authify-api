@@ -91,7 +91,7 @@ module Authify
         end
 
         show_many do |ids|
-          serialize_models Models::User.find(ids), fields: { users: indexable_fields }
+          Models::User.find(ids)
         end
 
         has_many :apikeys do
