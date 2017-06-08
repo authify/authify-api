@@ -117,7 +117,7 @@ RSpec.configure do |config|
 
     # An organization for testing
     org = Authify::API::Models::Organization.new(
-      name: 'Test Organization',
+      name: 'test',
       description: 'A test organization'
     )
     new_member = Authify::API::Models::OrganizationMembership.new(user: user, admin: true)
