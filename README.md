@@ -17,24 +17,78 @@ The Authify API service consists of a database for storing:
 * Groups (and membership)
 * Trusted authify delegates (other services with unlimited capabilities, including impersonating users)
 
-Nearly all API endpoints available via Authify implement the [{json:api}](http://jsonapi.org/) 1.0 specification. The exceptions are:
+Nearly all API endpoints available via Authify implement the [{json:api}](http://jsonapi.org/) 1.0 specification, though there are a few exceptions.
 
-* `GET /jwt/key` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the key `data` whose value is a PEM-encoded ECDSA public key, which should be used to verify the signature made by the Authify service.
-* `GET /jwt/meta` - Returns Content Type: `application/json`. This endpoint returns a JSON Object with the keys `algorithm`, `issuer`, and `expiration` that describe the kind of JWTs produced by this service.
-* `POST /jwt/token` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to obtain a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token). This endpoint expects a JSON Object with either the keys `access_key` and `secret_key` _OR_ `email` and `password`. There is no firm requirement to use either pair for any particular purpose, but for scenarios where the credentials may be stored, the `access_key` and `secret_key` may be used since those can easily be revoked if necessary. Upon successful authentication, the endpoint provides a JSON Object with the key `jwt` and a signed JWT. There should be nothing highly sensitive embedded in the JWT. The JWT defaults to expiring every 15 minutes. This endpoint also allows optionally specifying a key called `inject` with a JSON object as a value. This JSON object will then be injected into a top-level `custom` key in the returned JWT _as is_.
-* `POST /registration/signup` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to signup for an account with Authify. This endpoint expects a JSON Object, requiring the keys `email` and `password`, with `name` and `via` being optional. If `via` is provided, then it must be a JSON Object with the keys `provider` and `uid`, otherwise it will be ignored. The `via` key is used to add an alternate identity (meaning they logged-in through an integration, like Github), and is only trusted from trusted delegates (meaning it will be ignored for anonymous calls to this endpoint). This endpoint returns a JSON Object with the keys `id`, `email`, and `verified`, on success. If the user is registered by a trusted delegate *and* `via` options were provided, the users is implicitly trusted and a `jwt` key will also be provided for authentication. This endpoint allows customization of the emails sent for users requiring verification. For information on how this works, see the [Templating](#templating) section. The following template expressions are available: `token` and `valid_until`.
-* `POST /registration/verify` - Returns (and only accepts) Content Type: `application/json`. This endpoint is used to verify a registered user's email address. This endpoint expects a JSON Object, requiring the keys `email`, `password`, and `token`. This endpoint returns a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success.
-* `POST /registration/forgot_password` - Returns (and only accepts) Content Type: `application/json`. This endpoint serves two related purposes: it is used to trigger resetting a forgotten (or non-existent) password and it is used to actually set the value of a user's password. The difference in which operation is performed is based on the POST data. When provided a JSON Object with only the key `email`, the endpoint sends the user an email with a verification token, returning an empty JSON Object as a result. When provided a JSON Object with the keys `email`, `password`, and `token`, the endpoint verifies that the token matches, then sets the user's password, returning a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success. This endpoint allows customization of the emails sent for users requiring verification. For information on how this works, see the [Templating](#templating) section. The following template expressions are available: `token` and `valid_until`.
+### Non-standard API Endpoints
+
+**`GET /jwt/key`**
+_Returns Content Type: `application/json`._
+
+This endpoint returns a JSON Object with the key `data` whose value is a PEM-encoded ECDSA public key, which should be used to verify the signature made by the Authify service.
+
+**`GET /jwt/meta`**
+_Returns Content Type: `application/json`._
+
+This endpoint returns a JSON Object with the keys `algorithm`, `issuer`, and `expiration` that describe the kind of JWTs produced by this service.
+
+**`POST /jwt/token`**
+_Returns (and only accepts) Content Type: `application/json`._
+
+This endpoint is used to obtain a [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token). This endpoint expects a JSON Object with either the keys `access_key` and `secret_key` _OR_ `email` and `password`. There is no firm requirement to use either pair for any particular purpose, but for scenarios where the credentials may be stored, the `access_key` and `secret_key` can easily be revoked if necessary.
+
+Upon successful authentication, the endpoint provides a JSON Object with the key `jwt` and a signed JWT. There should be nothing highly sensitive embedded in the JWT. The JWT defaults to expiring every 15 minutes.
+
+This endpoint also allows optionally specifying a key called `inject` with a JSON object as a value. This JSON object will then be injected into a top-level `custom` key in the returned JWT _as is_.
+
+**`POST /registration/signup`**
+_Returns (and only accepts) Content Type: `application/json`._
+
+This endpoint is used to signup for an account with Authify. This endpoint expects a JSON Object, requiring the keys `email` and `password`, with `name` and `via` being optional. If `via` is provided, then it must be a JSON Object with the keys `provider` and `uid`, otherwise it will be ignored. The `via` key is used to add an alternate identity (meaning they logged-in through an integration, like Github), and is only trusted from trusted delegates (meaning it will be ignored for anonymous calls to this endpoint).
+
+This endpoint returns a JSON Object with the keys `id`, `email`, and `verified`, on success. If the user is registered by a trusted delegate *and* `via` options were provided, the users is implicitly trusted and a `jwt` key will also be provided for authentication. Otherwise, users will need to proceed to `/registration/verify` with the token they receive by email to verify their identity.
+
+This endpoint allows customization of the emails sent for users requiring verification. For information on how this works, see the [Templating](#templating) section. The following template expressions are available: `token` and `valid_until`.
+
+**`POST /registration/verify`**
+_Returns (and only accepts) Content Type: `application/json`._
+
+This endpoint is used to verify a registered user's email address. Currently, the data used to verify users is a token provided via email.
+
+This endpoint expects a JSON Object, requiring the keys `email`, `password`, and `token`. This endpoint returns a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success.
+
+**`POST /registration/forgot_password`**
+_Returns (and only accepts) Content Type: `application/json`._
+
+This endpoint serves two related purposes: it is used to trigger resetting a forgotten (or non-existent) password and it is used to actually set the value of a user's password. The difference in which operation is performed is based on the POST data.
+
+When provided a JSON Object with only the key `email`, the endpoint sends the user an email with a verification token, returning an empty JSON Object as a result. When provided a JSON Object with the keys `email`, `password`, and `token`, the endpoint verifies that the token matches, then sets the user's password, returning a JSON Object with the keys `id`, `email`, `verified`, and `jwt` on success.
+
+This endpoint allows customization of the emails sent for users requiring verification. For information on how this works, see the [Templating](#templating) section. The following template expressions are available: `token` and `valid_until`.
+
+### {json:api} API Endpoints
 
 All other endpoints adhere to the {json:api} specification and can be found at the following base paths:
 
-* `/apikeys` - User API keys. Index is restricted. Should only really be useful for users manipulating their own keys.
-* `/groups` - Groups. Index is restricted. Most interactions with groups should be scoped via organizations.
-* `/identities` - Alternate User Identities. These are other services that the user can login via (web UI only).
-* `/organizations` - Organizations. These are high-level groupings of users and groups. Non-administrators should only be able to see limited amounts of information about organizations.
-* `/users` - Users controller.
+**`/apikeys`**
+User API keys. Index is restricted. Should only really be useful for users manipulating their own keys.
 
-In addition to expiring JWTs provided via `/jwt/token` for normal user interactions, Trusted Delegates can perform any action by providing the `X-Authify-Access`, `X-Authify-Secret`, and the `X-Authify-On-Behalf-Of` headers. The `Access` and `Secret` headers are used to authenticate the remote application, and the `On-Behalf-Of` is used to impersonate the user (usually determined through a process on the remote end to establish the user's identity). Note that while these sound similar to User API keys, these Trusted Delegate credentials are longer and can not be interchanged. These values do not expire and are not easily created or removed. For this reason, they should be used **very** sparingly. They can only be created, listed, or removed via a set of `rake` commands run server-side. These are:
+**`/groups`**
+Groups. Index is restricted. Most interactions with groups should be scoped via organizations.
+
+**`/identities`**
+Alternate User Identities. These are other services that the user can login via (web UI only).
+
+**`/organizations`**
+Organizations. These are high-level groupings of users and groups. Non-administrators should only be able to see limited amounts of information about organizations.
+
+**`/users`**
+Users controller.
+
+### Trusted Delegates
+
+In addition to expiring JWTs provided via `/jwt/token` for normal user interactions, Trusted Delegates can perform any action by providing the `X-Authify-Access`, `X-Authify-Secret`, and the `X-Authify-On-Behalf-Of` headers. The `Access` and `Secret` headers are used to authenticate the remote application, and the `On-Behalf-Of` is used to impersonate the user (determined through a process on the remote, trusted delegate's end to establish the user's identity).
+
+Note that while these sound similar to User API keys, these Trusted Delegate credentials are longer and can not be interchanged with User API Keys. These values do not expire and are not easily created or removed. For this reason, they should be used **very** sparingly. They can only be created, listed, or removed via a set of `rake` commands run server-side. These are:
 
 * `rake delegate:add[<name>]` - where `<name>` is the unique name of the trusted delegate. For example, `rake delegate:add[foo]` adds a remote delegate named `foo`. This command will output a key / value set providing the access\_key and secret\_key. The secret\_key is stored as a one-way hash in the DB, so it can never be retrieved again.
 * `rake delegate:list` - lists the names of all trusted delegates along with their access keys.
@@ -60,12 +114,23 @@ Or install it yourself as:
 
 The Authify API services supports the following configuration settings, managed via environment variables of the same name:
 
-* `AUTHIFY_DB_URL` - The URL used by [ActiveRecord](http://guides.rubyonrails.org/configuring.html#configuring-a-database) to connect to the database. Currently supports `mysql2://` or `sqlite3://` URLs, though any driver supported by ActiveRecord should work if the required gems are installed. Defaults to `mysql2://root@localhost:3306/authifydb`.
-* `AUTHIFY_PUBKEY_PATH` - The path on the filesystem to the PEM-encoded, public ECDSA key. Defaults to `~/.authify/ssl/public.pem`.
-* `AUTHIFY_PRIVKEY_PATH` - The path on the filesystem to the PEM-encoded, private ECDSA key. Currently, Authify only supports an [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) keys. Options include using a `secp521r1` curve and the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) hashing algorithm (called `ES512`), a `secp384r1` curve and the SHA-384 hashing algorithm (called `ES384`), or a `prime256v1` curve and the SHA-256 hashing algorithm (called `ES256`). See `AUTHIFY_JWT_ALGORITHM` below for information on how to configure Authify's algorithm to match the public and private keys you provide. The keys you specify **must** match the ECDSA algortihm and curve used to create them.
-* `AUTHIFY_JWT_ISSUER` - The name of the issuer ([iss field](https://en.wikipedia.org/wiki/JSON_Web_Token#Standard_fields)) used when creating the JWT. This **must** match on any service that verifies the JWT (meaning any service relying on Authify for authentication), and it **must** be the same for all services that integrate with Authify.
-* `AUTHIFY_JWT_ALGORITHM` - The name of the [JWA](https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40) algorithm to use when loading keys and creating or verifying JWT signatures. Valid values are `ES256`, `ES384`, or `ES512`. Defaults to `ES512`. This **must** match the curve and algorithm used to produce the public and private keys found at `AUTHIFY_PUBKEY_PATH` and `AUTHIFY_PRIVKEY_PATH`, respectively. Note that the curves `prime256v1` (also called NIST P-256) used by `ES256` and `secp384r1` (also called NIST P-384) used by `ES384`, while offering a wider range of compatible SSL libraries, are described as unsafe on [SafeCurves](https://safecurves.cr.yp.to/) for several reasons described there.
-* `AUTHIFY_JWT_EXPIRATION` - How long should a JWT be valid (in minutes). Defaults to 15. Too small of a value will mean a lot more requests to the API; too high increases the possibility of viable keys being captured.
+**`AUTHIFY_DB_URL`**
+The URL used by [ActiveRecord](http://guides.rubyonrails.org/configuring.html#configuring-a-database) to connect to the database. Currently supports `mysql2://` or `sqlite3://` URLs, though any driver supported by ActiveRecord should work if the required gems are installed. Defaults to `mysql2://root@localhost:3306/authifydb`.
+
+**`AUTHIFY_PUBKEY_PATH`**
+The path on the filesystem to the PEM-encoded, public ECDSA key. Defaults to `~/.authify/ssl/public.pem`.
+
+**`AUTHIFY_PRIVKEY_PATH`**
+The path on the filesystem to the PEM-encoded, private ECDSA key. Currently, Authify only supports an [ECDSA](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) keys. Options include using a `secp521r1` curve and the [SHA-512](https://en.wikipedia.org/wiki/SHA-2) hashing algorithm (called `ES512`), a `secp384r1` curve and the SHA-384 hashing algorithm (called `ES384`), or a `prime256v1` curve and the SHA-256 hashing algorithm (called `ES256`). See `AUTHIFY_JWT_ALGORITHM` below for information on how to configure Authify's algorithm to match the public and private keys you provide. The keys you specify **must** match the ECDSA algortihm and curve used to create them.
+
+**`AUTHIFY_JWT_ISSUER`**
+The name of the issuer ([iss field](https://en.wikipedia.org/wiki/JSON_Web_Token#Standard_fields)) used when creating the JWT. This **must** match on any service that verifies the JWT (meaning any service relying on Authify for authentication), and it **must** be the same for all services that integrate with Authify.
+
+**`AUTHIFY_JWT_ALGORITHM`**
+The name of the [JWA](https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40) algorithm to use when loading keys and creating or verifying JWT signatures. Valid values are `ES256`, `ES384`, or `ES512`. Defaults to `ES512`. This **must** match the curve and algorithm used to produce the public and private keys found at `AUTHIFY_PUBKEY_PATH` and `AUTHIFY_PRIVKEY_PATH`, respectively. Note that the curves `prime256v1` (also called NIST P-256) used by `ES256` and `secp384r1` (also called NIST P-384) used by `ES384`, while offering a wider range of compatible SSL libraries, are described as unsafe on [SafeCurves](https://safecurves.cr.yp.to/) for several reasons described there.
+
+**`AUTHIFY_JWT_EXPIRATION`**
+How long should a JWT be valid (in minutes). Defaults to 15. Too small of a value will mean a lot more requests to the API; too high increases the possibility of viable keys being captured.
 
 ## Usage and Authentication Workflow
 
