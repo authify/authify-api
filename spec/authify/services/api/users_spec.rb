@@ -108,7 +108,6 @@ describe Authify::API::Services::API do
         expect(last_response.status).to eq(200)
 
         details = JSON.parse(last_response.body)
-        p details['data']
 
         expect(details.size).to eq(3)
         expect(details).to have_key('data')
