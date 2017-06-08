@@ -45,6 +45,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 0.35'
   spec.add_development_dependency 'yard',    '~> 0.8'
   spec.add_development_dependency 'travis', '~> 1.8'
-  spec.add_development_dependency 'simplecov', '~> 0.13'
+  spec.add_development_dependency 'simplecov', '~> 0.14'
+  spec.add_development_dependency 'coveralls', '~> 0.8'
+  spec.add_development_dependency 'byebug', '~> 9'
   spec.add_development_dependency 'rack-test', '~> 0.6'
 end
