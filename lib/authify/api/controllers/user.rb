@@ -3,6 +3,18 @@ module Authify
     module Controllers
       User = proc do
         helpers do
+          def before_index
+            params[:fields] = only_indexable_fields
+          end
+
+          def before_show_many
+            params[:fields] = only_indexable_fields
+          end
+
+          def before_show
+            params[:fields] = only_indexable_fields
+          end
+
           def find(id)
             Models::User.find(id.to_i)
           end
@@ -17,6 +29,26 @@ module Authify
             %i[full_name email].tap do |a|
               a << :admin if role.include?(:admin)
             end
+          end
+
+          def indexable_fields
+            %i[full-name admin apikeys groups organizations identities].tap do |a|
+              if role?(:admin) || role?(:myself)
+                a << :verified
+                a << :email
+                a << :'created-at'
+              end
+            end
+          end
+
+          def only_indexable_fields
+            {
+              users: if params[:fields] && params[:fields].key?(:users)
+                       params[:fields][:users].select { |k, _| indexable_fields.include?(k) }
+                     else
+                       indexable_fields
+                     end
+            }
           end
 
           def filtered_attributes(attributes)
@@ -59,7 +91,7 @@ module Authify
         end
 
         show_many do |ids|
-          Models::User.find(ids)
+          serialize_models Models::User.find(ids), fields: { users: indexable_fields }
         end
 
         has_many :apikeys do

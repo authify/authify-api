@@ -47,6 +47,75 @@ describe Authify::API::Services::API do
         expect(error['title']).to eq('Forbidden Error')
         expect(error['detail']).to eq('You are not authorized to perform this action')
       end
+
+      it 'allows users to list all users' do
+        header 'Accept', 'application/vnd.api+json'
+        header 'Authorization', "Bearer #{user_jwt}"
+        get '/users'
+
+        # Should respond with a 200
+        expect(last_response.status).to eq(200)
+
+        details = JSON.parse(last_response.body)
+
+        expect(details.size).to eq(3)
+        expect(details).to have_key('data')
+        expect(details['data'].size).to eq(3)
+        # Make sure we aren't exposing emails for all our users
+        expect(details['data'].first['attributes'].keys).not_to include('email')
+      end
+    end
+
+    context 'GET /users/1' do
+      it 'requires authentication' do
+        header 'Accept', 'application/vnd.api+json'
+        get '/users/1'
+
+        # Should respond with a 403
+        expect(last_response.status).to eq(403)
+
+        error_details = JSON.parse(last_response.body)['errors']
+        error = error_details.last
+
+        # Should only be 1 error
+        expect(error_details.size).to eq(1)
+        expect(error['title']).to eq('Forbidden Error')
+        expect(error['detail']).to eq('You are not authorized to perform this action')
+      end
+
+      it 'allows users view themselves' do
+        header 'Accept', 'application/vnd.api+json'
+        header 'Authorization', "Bearer #{user_jwt}"
+        get '/users/1'
+
+        # Should respond with a 200
+        expect(last_response.status).to eq(200)
+
+        details = JSON.parse(last_response.body)
+
+        expect(details.size).to eq(3)
+        expect(details).to have_key('data')
+        expect(details['data']['attributes']['full-name']).to eq('Test User')
+        expect(details['data']['attributes'].keys).to include('email')
+      end
+
+      it 'allows users view other users' do
+        header 'Accept', 'application/vnd.api+json'
+        header 'Authorization', "Bearer #{user_jwt}"
+        get '/users/2'
+
+        # Should respond with a 200
+        expect(last_response.status).to eq(200)
+
+        details = JSON.parse(last_response.body)
+        p details['data']
+
+        expect(details.size).to eq(3)
+        expect(details).to have_key('data')
+        expect(details['data']['attributes']['full-name']).to eq('Bad User')
+        # Make sure we aren't exposing emails for all our users
+        expect(details['data']['attributes'].keys).not_to include('email')
+      end
     end
 
     context 'GET /users/:id/apikeys' do
