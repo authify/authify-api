@@ -40,6 +40,18 @@ describe Authify::API::Services::Registration do
         }
       end
 
+      let(:signup_with_encoded_template_data) do
+        {
+          'email'     => 'encoded.user@example.com',
+          'password'  => 'encodeduser1234',
+          'templates' => {
+            'email' => {
+              'body' => '{base64}VGhpcyB3YXMgZW5jb2RlZDoge3t0b2tlbn19'
+            }
+          }
+        }
+      end
+
       context 'OPTIONS /signup' do
         it 'returns 200 with expected headers' do
           options '/signup'
@@ -88,6 +100,26 @@ describe Authify::API::Services::Registration do
           ).to match(/^Your code is: [a-z0-9]+$/)
         end
 
+        it 'allows registration via email and password and an encoded template' do
+          header 'Accept', 'application/json'
+          header 'Content-Type', 'application/json'
+          post '/signup', signup_with_encoded_template_data.to_json
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+
+          details = JSON.parse(last_response.body)
+
+          expect(details.size).to eq(3)
+          expect(details).to have_key('verified')
+          expect(details['verified']).to be(false)
+          expect(details['email']).to eq(signup_with_encoded_template_data['email'])
+          expect(details['id']).to eq(6)
+          expect(
+            Resque.sample_queues['mailer'][:samples].last['args'].last['body']
+          ).to match(/^This was encoded: [a-z0-9]+$/)
+        end
+
         it 'allows registration via delegate and identity' do
           header 'Accept', 'application/json'
           header 'Content-Type', 'application/json'
@@ -105,7 +137,7 @@ describe Authify::API::Services::Registration do
           expect(details['verified']).to be(true)
           expect(details).to have_key('jwt')
           expect(details['email']).to eq(identity_signup_data['email'])
-          expect(details['id']).to eq(6)
+          expect(details['id']).to eq(7)
         end
       end
     end
