@@ -1,5 +1,9 @@
 # Authify::API
 
+[![Gem Version](https://badge.fury.io/rb/authify-api.svg)](https://badge.fury.io/rb/authify-api)
+[![Build Status](https://travis-ci.org/knuedge/authify-api.svg?branch=master)](https://travis-ci.org/knuedge/authify-api)
+[![Coverage Status](https://coveralls.io/repos/github/knuedge/authify-api/badge.svg?branch=master)](https://coveralls.io/github/knuedge/authify-api?branch=master)
+
 ## Introduction
 
 Authify is a web service built from the ground up to simplify authentication and provide it securely to a collection of related web sites.
