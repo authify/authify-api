@@ -9,20 +9,11 @@ module Authify
 
         before do
           content_type 'application/json'
-
-          begin
-            unless request.get? || request.options?
-              request.body.rewind
-              @parsed_body = JSON.parse(request.body.read, symbolize_names: true)
-            end
-          rescue => e
-            halt(400, { error: "Request must be valid JSON: #{e.message}" }.to_json)
-          end
         end
 
         after do
           headers 'Access-Control-Allow-Origin' => '*',
-                  'Access-Control-Allow-Methods' => %w[OPTIONS GET POST],
+                  'Access-Control-Allow-Methods' => %w[OPTIONS GET],
                   'Access-Control-Allow-Headers' => %w[
                     Origin
                     Accept

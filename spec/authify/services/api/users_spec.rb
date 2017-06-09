@@ -66,7 +66,7 @@ describe Authify::API::Services::API do
       end
     end
 
-    context 'GET /users/1' do
+    context 'GET /users/:id' do
       it 'requires authentication' do
         header 'Accept', 'application/vnd.api+json'
         get '/users/1'
@@ -114,6 +114,59 @@ describe Authify::API::Services::API do
         expect(details['data']['attributes']['full-name']).to eq('Bad User')
         # Make sure we aren't exposing emails for all our users
         expect(details['data']['attributes'].keys).not_to include('email')
+      end
+    end
+
+    context 'POST /users/:id' do
+      let(:user_update_data) do
+        {
+          'data' => {
+            'type' => 'users',
+            'id' => '1',
+            'attributes' => {
+              'full-name' => 'Testing Test'
+            }
+          }
+        }
+      end
+
+      it 'requires authentication' do
+        header 'Accept', 'application/vnd.api+json'
+        header 'Content-Type', 'application/vnd.api+json'
+
+        patch '/users/1', user_update_data.to_json
+
+        # Should respond with a 403
+        expect(last_response.status).to eq(403)
+
+        error_details = JSON.parse(last_response.body)['errors']
+        error = error_details.last
+
+        # Should only be 1 error
+        expect(error_details.size).to eq(1)
+        expect(error['title']).to eq('Forbidden Error')
+        expect(error['detail']).to eq('You are not authorized to perform this action')
+      end
+
+      it 'allows users to update their details' do
+        header 'Accept', 'application/vnd.api+json'
+        header 'Content-Type', 'application/vnd.api+json'
+        header 'Authorization', "Bearer #{user_jwt}"
+
+        patch '/users/1', user_update_data.to_json
+
+        # Should respond with a 201
+        expect(last_response.status).to eq(200)
+
+        details = JSON.parse(last_response.body)
+
+        expect(details.size).to eq(3)
+        expect(details).to have_key('data')
+        expect(details['data']).to have_key('id')
+        expect(details['data']['id']).to eq('1')
+        expect(details['data']).to have_key('attributes')
+        expect(details['data']['attributes']).to have_key('full-name')
+        expect(details['data']['attributes']['full-name']).to eq('Testing Test')
       end
     end
 

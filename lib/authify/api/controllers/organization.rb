@@ -9,7 +9,7 @@ module Authify
 
           def role
             Array(super).tap do |a|
-              a << :owner if resource && current_user.admin_for?(resource)
+              a << :owner if resource && current_user && current_user.admin_for?(resource)
               a << :member if resource && resource.users.include?(current_user)
             end.uniq
           end
