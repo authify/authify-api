@@ -11,7 +11,6 @@ module Authify
 
         validates_uniqueness_of :email
         validates_format_of :email, with: /[-a-z0-9_+\.+]+\@([-a-z0-9]+\.)+[a-z0-9]{2,4}/i
-        validates :token_refreshes, numericality: { only_integer: true, less_than_or_equal_to: 50 }
 
         has_many :apikeys,
                  class_name: 'Authify::API::Models::APIKey',
