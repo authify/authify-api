@@ -70,8 +70,7 @@ module Authify
           if found_user
             update_current_user found_user
             Metrics.instance.increment('jwt.tokens.provided')
-            found_user.token_refreshes = 0
-            found_user.save
+
             { jwt: jwt_token(custom_data: custom_data) }.to_json
           else
             halt 401
@@ -115,37 +114,6 @@ module Authify
         end
 
         options '/verify' do
-          halt 200
-        end
-
-        post '/refresh' do
-          token_data = process_token(@parsed_body[:token])
-          begin
-            raise 'Invalid Token' unless token_data && token_data[:valid]
-            payload = token_data[:payload]
-            user = Models::User.find(payload['user']['uid'])
-
-            refs = payload['meta'] && payload['meta']['refs'] ? payload['meta']['refs'] + 1 : 1
-            raise 'Token Deprecated' unless user.token_refreshes == (refs - 1)
-            new_meta = (payload['meta'] || {}).merge(refs: refs)
-            user.token_refreshes = refs
-            user.save
-
-            Metrics.instance.increment('jwt.tokens.refreshed')
-            {
-              jwt: jwt_token(
-                user: user,
-                custom_data: payload[:custom],
-                meta: new_meta
-              )
-            }.to_json
-          rescue => e
-            body({ errors: Array[e.message] }.to_json)
-            halt 422
-          end
-        end
-
-        options '/refresh' do
           halt 200
         end
       end

@@ -44,17 +44,6 @@ Upon successful authentication, the endpoint provides a JSON Object with the key
 
 This endpoint also allows optionally specifying a key called `inject` with a JSON object as a value. This JSON object will then be injected into a top-level `custom` key in the returned JWT _as is_.
 
-**`POST /jwt/refresh`**
-_Returns (and only accepts) Content Type: `application/json`_
-
-Use this endpoint to request a new JWT using an old one. This endpoint has some security considerations built-in to deprecate JWTs (meaning prevent them from working with this endpoint) if they are used _after_ any other JWT has been issued for a user. This may limit the utility of this endpoint if anything else requests a JWT for the same user (such as automated processes).
-
-The endpoint expects a simple JSON object with the key `jwt` containing a valid JWT as the value. The endpoint doesn't allow injecting additional custom data, but will carry along any custom data in the existing JWT to the new one.
-
-This endpoint returns the JSON object with the key `jwt` and a new, signed JWT.
-
-**Note that it does not revoke previous JWTs** so any existing, valid JWTs will continue to be valid until they expire.
-
 **`GET/POST /jwt/verify`**
 _Returns (and only accepts) Content Type: `application/json`_
 

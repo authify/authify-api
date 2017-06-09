@@ -92,10 +92,8 @@ ActiveRecord::Schema.define(version: 20170609181046) do
     t.boolean "admin", default: false, null: false
     t.boolean "verified"
     t.string "verification_token"
-    t.integer "token_refreshes", default: 0, null: false
     t.index ["admin"], name: "index_users_on_admin"
     t.index ["email"], name: "index_users_on_email"
-    t.index ["token_refreshes"], name: "index_users_on_token_refreshes"
     t.index ["verified"], name: "index_users_on_verified"
   end
 
