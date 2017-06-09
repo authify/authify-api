@@ -10,91 +10,93 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170328151033) do
+ActiveRecord::Schema.define(version: 20170609181046) do
 
-  create_table "apikeys", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "user_id"
-    t.string   "access_key"
-    t.text     "secret_key_digest", limit: 65535
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.index ["access_key"], name: "index_apikeys_on_access_key", using: :btree
-    t.index ["user_id"], name: "index_apikeys_on_user_id", using: :btree
+  create_table "apikeys", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "user_id"
+    t.string "access_key"
+    t.text "secret_key_digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["access_key"], name: "index_apikeys_on_access_key"
+    t.index ["user_id"], name: "index_apikeys_on_user_id"
   end
 
-  create_table "groups", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "organization_id"
-    t.string   "name"
-    t.text     "description",     limit: 65535
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-    t.index ["name"], name: "index_groups_on_name", using: :btree
-    t.index ["organization_id"], name: "index_groups_on_organization_id", using: :btree
+  create_table "groups", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "organization_id"
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_groups_on_name"
+    t.index ["organization_id"], name: "index_groups_on_organization_id"
   end
 
   create_table "groups_users", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "group_id"
     t.integer "user_id"
-    t.index ["group_id"], name: "index_groups_users_on_group_id", using: :btree
-    t.index ["user_id"], name: "index_groups_users_on_user_id", using: :btree
+    t.index ["group_id"], name: "index_groups_users_on_group_id"
+    t.index ["user_id"], name: "index_groups_users_on_user_id"
   end
 
-  create_table "identities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "user_id"
-    t.string   "provider"
-    t.string   "uid"
+  create_table "identities", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "user_id"
+    t.string "provider"
+    t.string "uid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["provider"], name: "index_identities_on_provider", using: :btree
-    t.index ["uid"], name: "index_identities_on_uid", using: :btree
-    t.index ["user_id"], name: "index_identities_on_user_id", using: :btree
+    t.index ["provider"], name: "index_identities_on_provider"
+    t.index ["uid"], name: "index_identities_on_uid"
+    t.index ["user_id"], name: "index_identities_on_user_id"
   end
 
-  create_table "organization_memberships", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "organization_memberships", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "organization_id"
     t.integer "user_id"
-    t.boolean "admin",           default: false
-    t.index ["admin"], name: "index_organization_memberships_on_admin", using: :btree
-    t.index ["organization_id"], name: "index_organization_memberships_on_organization_id", using: :btree
-    t.index ["user_id"], name: "index_organization_memberships_on_user_id", using: :btree
+    t.boolean "admin", default: false
+    t.index ["admin"], name: "index_organization_memberships_on_admin"
+    t.index ["organization_id"], name: "index_organization_memberships_on_organization_id"
+    t.index ["user_id"], name: "index_organization_memberships_on_user_id"
   end
 
-  create_table "organizations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "name"
-    t.string   "public_email"
-    t.string   "gravatar_email"
-    t.string   "billing_email"
-    t.text     "description",    limit: 65535
-    t.string   "url"
-    t.string   "location"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.index ["name"], name: "index_organizations_on_name", using: :btree
+  create_table "organizations", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name"
+    t.string "public_email"
+    t.string "gravatar_email"
+    t.string "billing_email"
+    t.text "description"
+    t.string "url"
+    t.string "location"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_organizations_on_name"
   end
 
-  create_table "trusted_delegates", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "name"
-    t.string   "access_key"
-    t.text     "secret_key_digest", limit: 65535
-    t.text     "description",       limit: 65535
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.index ["access_key"], name: "index_trusted_delegates_on_access_key", using: :btree
-    t.index ["name"], name: "index_trusted_delegates_on_name", using: :btree
+  create_table "trusted_delegates", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name"
+    t.string "access_key"
+    t.text "secret_key_digest"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["access_key"], name: "index_trusted_delegates_on_access_key"
+    t.index ["name"], name: "index_trusted_delegates_on_name"
   end
 
-  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "email"
-    t.text     "password_digest",    limit: 65535
-    t.string   "full_name"
-    t.datetime "created_at",                                       null: false
-    t.datetime "updated_at",                                       null: false
-    t.boolean  "admin",                            default: false, null: false
-    t.boolean  "verified"
-    t.string   "verification_token"
-    t.index ["admin"], name: "index_users_on_admin", using: :btree
-    t.index ["email"], name: "index_users_on_email", using: :btree
-    t.index ["verified"], name: "index_users_on_verified", using: :btree
+  create_table "users", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "email"
+    t.text "password_digest"
+    t.string "full_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "admin", default: false, null: false
+    t.boolean "verified"
+    t.string "verification_token"
+    t.integer "token_refreshes", default: 0, null: false
+    t.index ["admin"], name: "index_users_on_admin"
+    t.index ["email"], name: "index_users_on_email"
+    t.index ["token_refreshes"], name: "index_users_on_token_refreshes"
+    t.index ["verified"], name: "index_users_on_verified"
   end
 
 end

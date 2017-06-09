@@ -70,6 +70,8 @@ module Authify
           if found_user
             update_current_user found_user
             Metrics.instance.increment('jwt.tokens.provided')
+            found_user.token_refreshes = 0
+            found_user.save
             { jwt: jwt_token(custom_data: custom_data) }.to_json
           else
             halt 401
@@ -124,7 +126,10 @@ module Authify
             user = Models::User.find(payload['user']['uid'])
 
             refs = payload['meta'] && payload['meta']['refs'] ? payload['meta']['refs'] + 1 : 1
+            raise 'Token Deprecated' unless user.token_refreshes == (refs - 1)
             new_meta = (payload['meta'] || {}).merge(refs: refs)
+            user.token_refreshes = refs
+            user.save
 
             Metrics.instance.increment('jwt.tokens.refreshed')
             {
