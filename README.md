@@ -44,6 +44,15 @@ Upon successful authentication, the endpoint provides a JSON Object with the key
 
 This endpoint also allows optionally specifying a key called `inject` with a JSON object as a value. This JSON object will then be injected into a top-level `custom` key in the returned JWT _as is_.
 
+**`GET/POST /jwt/verify`**
+_Returns (and only accepts) Content Type: `application/json`_
+
+This endpoint is useful for debugging or for low-volume, simple clients. Pass either a `GET` parameter of `token` or `POST` a JSON object with the key `token`. In either case, the value is a JWT that can be validated and have its details returned as simple JSON data.
+
+For valid JWTs, this endpoint will return a JSON object with the keys `valid`, `payload`, `type`, and `algorithm`. The `valid` field is a boolean that describes whether or not the JWT is valid for use with this instance of Authify. The `payload` field is the full JWT payload, with all its claims listed as keys in a JSON object. The `type` key should always return `JWT` but is reserved for future use. Finally, the `algorithm` key describes the JWA algorithm used to sign the key. See the [configuration section](#configuration) for details on the algorithm.
+
+For invalid or expired JWTs, this endpoint will still return `200 OK`, so don't rely on that to determine if the JWT is valid. It will, however, return different data. In this case, the endpoint will respond with a JSON object with the keys `valid`, `errors`, and `reason`. For invalid JWTs, the `valid` boolean will be `false`. The `errors` key will be a list of errors encountered while processing the JWT. The `reason` key provides a simple and generic explanation of the first encountered failure.
+
 **`POST /registration/signup`**
 _Returns (and only accepts) Content Type: `application/json`._
 

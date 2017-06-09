@@ -70,6 +70,7 @@ module Authify
           if found_user
             update_current_user found_user
             Metrics.instance.increment('jwt.tokens.provided')
+
             { jwt: jwt_token(custom_data: custom_data) }.to_json
           else
             halt 401
@@ -101,6 +102,18 @@ module Authify
         end
 
         options '/key' do
+          halt 200
+        end
+
+        get '/verify' do
+          process_token(@params[:token]).to_json
+        end
+
+        post '/verify' do
+          process_token(@parsed_body[:token]).to_json
+        end
+
+        options '/verify' do
           halt 200
         end
       end
