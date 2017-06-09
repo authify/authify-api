@@ -193,6 +193,117 @@ describe Authify::API::Services::JWTProvider do
           end
         end
       end
+
+      # /verify
+      context 'token verifier endpoint' do
+        let(:user_jwt) do
+          RSpec.configuration.test_user_token
+        end
+
+        let(:bad_jwt_payload) do
+          {
+            exp: Time.now.to_i + 60 * 15,
+            iat: Time.now.to_i + 3600,
+            iss: 'My Awesome Company Inc.',
+            scopes: Authify::Core::Constants::JWTSCOPES.dup + [:admin_access],
+            user: {
+              username: 'test.user@example.com',
+              uid: 1,
+              organizations: {}
+            }
+          }
+        end
+
+        let(:a_bad_jwt) do
+          JWT.encode bad_jwt_payload, private_key, ENV['AUTHIFY_JWT_ALGORITHM']
+        end
+
+        context 'OPTIONS /verify' do
+          it 'returns 200 with expected headers' do
+            options '/verify'
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+            expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+          end
+        end
+
+        context 'POST /verify' do
+          it 'verifies and provides information about a valid JWT' do
+            post '/verify', { token: user_jwt }.to_json
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details).to have_key('valid')
+            expect(details['valid']).to eq(true)
+            expect(details).to have_key('payload')
+            expect(details['payload']).to have_key('scopes')
+            expect(details['payload']['scopes']).to include('user_access')
+            expect(details['payload']['scopes']).not_to include('admin_access')
+            expect(details).to have_key('type')
+            expect(details['type']).to eq('JWT')
+            expect(details).to have_key('algorithm')
+            expect(details['algorithm']).to eq(ENV['AUTHIFY_JWT_ALGORITHM'])
+          end
+
+          it 'provides information about invalid JWTs' do
+            post '/verify', { token: 'foobar' }.to_json
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details).to have_key('valid')
+            expect(details['valid']).to eq(false)
+            expect(details).to have_key('errors')
+            expect(details['errors']).to include('Not enough or too many segments')
+            expect(details).to have_key('reason')
+            expect(details['reason']).to eq('Corrupt or invalid JWT')
+          end
+        end
+
+        context 'GET /verify' do
+          it 'verifies and provides information about a valid JWT' do
+            get '/verify', token: user_jwt
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details).to have_key('valid')
+            expect(details['valid']).to eq(true)
+            expect(details).to have_key('payload')
+            expect(details['payload']).to have_key('scopes')
+            expect(details['payload']['scopes']).to include('user_access')
+            expect(details['payload']['scopes']).not_to include('admin_access')
+            expect(details).to have_key('type')
+            expect(details['type']).to eq('JWT')
+            expect(details).to have_key('algorithm')
+            expect(details['algorithm']).to eq(ENV['AUTHIFY_JWT_ALGORITHM'])
+          end
+
+          it 'provides information about invalid JWTs' do
+            get '/verify', token: a_bad_jwt
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details).to have_key('valid')
+            expect(details['valid']).to eq(false)
+            expect(details).to have_key('errors')
+            expect(details['errors']).to include('Invalid iat')
+            expect(details).to have_key('reason')
+            expect(details['reason']).to eq('Corrupt or invalid JWT')
+          end
+        end
+      end
     end
   end
 end

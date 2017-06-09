@@ -28,6 +28,33 @@ module Authify
           data
         end
 
+        def jwt_options
+          {
+            algorithm: CONFIG[:jwt][:algorithm],
+            verify_iss: true,
+            verify_iat: true,
+            iss: CONFIG[:jwt][:issuer]
+          }
+        end
+
+        def process_token(token)
+          results = {}
+
+          begin
+            decoded = JWT.decode(token, public_key, true, jwt_options)
+
+            results[:valid] = true
+            results[:payload] = decoded[0]
+            results[:type] = decoded[1]['typ']
+            results[:algorithm] = decoded[1]['alg']
+          rescue JWT::DecodeError => e
+            results[:valid] = false
+            results[:errors] = Array[e]
+            results[:reason] = 'Corrupt or invalid JWT'
+          end
+          results
+        end
+
         def simple_orgs_by_user(user)
           user.organizations.map do |o|
             {
