@@ -218,5 +218,54 @@ describe Authify::API::Services::Registration do
         end
       end
     end
+
+    context 'verify endpoint' do
+      let(:verification_data) do
+        u = Authify::API::Models::User.find_by_email('template.user@example.com')
+        full_token = u.verification_token
+        {
+          'email'    => 'template.user@example.com',
+          'password' => 'templateuser1234',
+          'token'    => full_token.split(':').first
+        }
+      end
+
+      context 'OPTIONS /verify' do
+        it 'returns 200 with expected headers' do
+          options '/verify'
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+          expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+        end
+      end
+
+      context 'POST /verify' do
+        it 'allows verifying a token' do
+          header 'Accept', 'application/json'
+          header 'Content-Type', 'application/json'
+
+          expect(
+            Authify::API::Models::User.find_by_email('template.user@example.com').verified?
+          ).not_to eq(true)
+
+          post '/verify', verification_data.to_json
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+
+          details = JSON.parse(last_response.body)
+
+          expect(details.size).to eq(4)
+          expect(details).to have_key('verified')
+          expect(details['verified']).to be(true)
+          expect(details).to have_key('jwt')
+          expect(details['email']).to eq(verification_data['email'])
+          expect(
+            Authify::API::Models::User.find_by_email('template.user@example.com').verified?
+          ).to eq(true)
+        end
+      end
+    end
   end
 end
