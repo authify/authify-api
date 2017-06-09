@@ -115,6 +115,34 @@ module Authify
         options '/verify' do
           halt 200
         end
+
+        post '/refresh' do
+          token_data = process_token(@parsed_body[:token])
+          begin
+            raise 'Invalid Token' unless token_data && token_data[:valid]
+            payload = token_data[:payload]
+            user = Models::User.find(payload['user']['uid'])
+
+            refs = payload['meta'] && payload['meta']['refs'] ? payload['meta']['refs'] + 1 : 1
+            new_meta = (payload['meta'] || {}).merge(refs: refs)
+
+            Metrics.instance.increment('jwt.tokens.refreshed')
+            {
+              jwt: jwt_token(
+                user: user,
+                custom_data: payload[:custom],
+                meta: new_meta
+              )
+            }.to_json
+          rescue => e
+            body({ errors: Array[e.message] }.to_json)
+            halt 422
+          end
+        end
+
+        options '/refresh' do
+          halt 200
+        end
       end
     end
   end

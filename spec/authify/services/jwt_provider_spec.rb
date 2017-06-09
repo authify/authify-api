@@ -48,6 +48,16 @@ describe Authify::API::Services::JWTProvider do
         end
       end
 
+      context 'OPTIONS /key' do
+        it 'returns 200 with expected headers' do
+          options '/key'
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+          expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+        end
+      end
+
       context 'GET /key' do
         it 'provides the JWT public key' do
           header 'Accept', 'application/json'
@@ -109,6 +119,16 @@ describe Authify::API::Services::JWTProvider do
           verify_iat: true,
           iss: 'My Awesome Company Inc.'
         }
+      end
+
+      context 'OPTIONS /token' do
+        it 'returns 200 with expected headers' do
+          options '/token'
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+          expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+        end
       end
 
       context 'POST /token' do
@@ -193,43 +213,45 @@ describe Authify::API::Services::JWTProvider do
           end
         end
       end
+    end
 
-      # /verify
-      context 'token verifier endpoint' do
-        let(:user_jwt) do
-          RSpec.configuration.test_user_token
-        end
+    # /verify
+    context 'token verifier endpoint' do
+      let(:user_jwt) do
+        RSpec.configuration.test_user_token
+      end
 
-        let(:bad_jwt_payload) do
-          {
-            exp: Time.now.to_i + 60 * 15,
-            iat: Time.now.to_i + 3600,
-            iss: 'My Awesome Company Inc.',
-            scopes: Authify::Core::Constants::JWTSCOPES.dup + [:admin_access],
-            user: {
-              username: 'test.user@example.com',
-              uid: 1,
-              organizations: {}
-            }
+      let(:bad_jwt_payload) do
+        {
+          exp: Time.now.to_i + 60 * 15,
+          iat: Time.now.to_i + 3600,
+          iss: 'My Awesome Company Inc.',
+          scopes: Authify::Core::Constants::JWTSCOPES.dup + [:admin_access],
+          user: {
+            username: 'test.user@example.com',
+            uid: 1,
+            organizations: {}
           }
+        }
+      end
+
+      let(:a_bad_jwt) do
+        JWT.encode bad_jwt_payload, private_key, ENV['AUTHIFY_JWT_ALGORITHM']
+      end
+
+      context 'OPTIONS /verify' do
+        it 'returns 200 with expected headers' do
+          options '/verify'
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+          expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
         end
+      end
 
-        let(:a_bad_jwt) do
-          JWT.encode bad_jwt_payload, private_key, ENV['AUTHIFY_JWT_ALGORITHM']
-        end
-
-        context 'OPTIONS /verify' do
-          it 'returns 200 with expected headers' do
-            options '/verify'
-
-            # Should respond with a 200
-            expect(last_response.status).to eq(200)
-            expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
-          end
-        end
-
-        context 'POST /verify' do
-          it 'verifies and provides information about a valid JWT' do
+      context 'POST /verify' do
+        context 'with a valid JWT' do
+          it 'verifies and provides information about JWTs' do
             post '/verify', { token: user_jwt }.to_json
 
             # Should respond with a 200
@@ -248,7 +270,9 @@ describe Authify::API::Services::JWTProvider do
             expect(details).to have_key('algorithm')
             expect(details['algorithm']).to eq(ENV['AUTHIFY_JWT_ALGORITHM'])
           end
+        end
 
+        context 'with an invalid JWT' do
           it 'provides information about invalid JWTs' do
             post '/verify', { token: 'foobar' }.to_json
 
@@ -265,9 +289,11 @@ describe Authify::API::Services::JWTProvider do
             expect(details['reason']).to eq('Corrupt or invalid JWT')
           end
         end
+      end
 
-        context 'GET /verify' do
-          it 'verifies and provides information about a valid JWT' do
+      context 'GET /verify' do
+        context 'with a valid JWT' do
+          it 'verifies and provides information about JWTs' do
             get '/verify', token: user_jwt
 
             # Should respond with a 200
@@ -286,7 +312,9 @@ describe Authify::API::Services::JWTProvider do
             expect(details).to have_key('algorithm')
             expect(details['algorithm']).to eq(ENV['AUTHIFY_JWT_ALGORITHM'])
           end
+        end
 
+        context 'with an invalid JWT' do
           it 'provides information about invalid JWTs' do
             get '/verify', token: a_bad_jwt
 
@@ -301,6 +329,82 @@ describe Authify::API::Services::JWTProvider do
             expect(details['errors']).to include('Invalid iat')
             expect(details).to have_key('reason')
             expect(details['reason']).to eq('Corrupt or invalid JWT')
+          end
+        end
+      end
+    end
+
+    # /verify
+    context 'token refresh endpoint' do
+      let(:user_jwt) do
+        RSpec.configuration.test_user_token
+      end
+
+      let(:bad_jwt_payload) do
+        {
+          exp: Time.now.to_i + 60 * 15,
+          iat: Time.now.to_i + 3600,
+          iss: 'My Awesome Company Inc.',
+          scopes: Authify::Core::Constants::JWTSCOPES.dup + [:admin_access],
+          user: {
+            username: 'test.user@example.com',
+            uid: 1,
+            organizations: {}
+          }
+        }
+      end
+
+      let(:a_bad_jwt) do
+        JWT.encode bad_jwt_payload, private_key, ENV['AUTHIFY_JWT_ALGORITHM']
+      end
+
+      context 'OPTIONS /refresh' do
+        it 'returns 200 with expected headers' do
+          options '/refresh'
+
+          # Should respond with a 200
+          expect(last_response.status).to eq(200)
+          expect(last_response.headers['Access-Control-Allow-Origin']).to eq('*')
+        end
+      end
+
+      context 'POST /refresh' do
+        context 'with a valid JWT' do
+          it 'provides a new usable JWT' do
+            post '/refresh', { token: user_jwt }.to_json
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details.size).to eq(1)
+            expect(details).to have_key('jwt')
+
+            # Make sure we have a good token
+            post '/verify', { token: details['jwt'] }.to_json
+
+            expect(last_response.status).to eq(200)
+            details = JSON.parse(last_response.body)
+            expect(details['valid']).to eq(true) # this means our new JWT is valid
+            expect(details).to have_key('payload')
+            expect(details['payload']).to have_key('meta')
+            expect(details['payload']['meta']).to have_key('refs')
+            expect(details['payload']['meta']['refs']).to eq(1)
+          end
+        end
+
+        context 'with an invalid JWT' do
+          it 'provides error information' do
+            post '/refresh', { token: a_bad_jwt }.to_json
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(422)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details.size).to eq(1)
+            expect(details).to have_key('errors')
           end
         end
       end

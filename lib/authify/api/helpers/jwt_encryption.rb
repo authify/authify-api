@@ -5,12 +5,13 @@ module Authify
       module JWTEncryption
         include Core::Helpers::JWTSSL
 
-        def jwt_token(user: nil, custom_data: {})
+        def jwt_token(user: nil, custom_data: {}, meta: nil)
           user ||= current_user
-          JWT.encode jwt_payload(user, custom_data), private_key, CONFIG[:jwt][:algorithm]
+          JWT.encode jwt_payload(user, custom_data, meta), private_key, CONFIG[:jwt][:algorithm]
         end
 
-        def jwt_payload(user, custom_data)
+        # rubocop:disable Metrics/AbcSize
+        def jwt_payload(user, custom_data, metadata = nil)
           data = {
             exp: Time.now.to_i + 60 * CONFIG[:jwt][:expiration].to_i,
             iat: Time.now.to_i,
@@ -25,6 +26,7 @@ module Authify
             }
           }
           data[:custom] = custom_data if custom_data && !custom_data.empty?
+          data[:meta] = metadata if metadata && metadata.is_a?(Hash) && !metadata.empty?
           data
         end
 
