@@ -3,7 +3,7 @@ module Authify
     VERSION = [
       0, # Major
       4, # Minor
-      0  # Patch
+      1  # Patch
     ].join('.')
   end
 end
