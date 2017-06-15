@@ -24,6 +24,9 @@ module Authify
       redis: {
         host: ENV['AUTHIFY_REDIS_HOST'] || 'localhost',
         port: ENV['AUTHIFY_REDIS_PORT'] || '6379'
+      },
+      verifications: {
+        required: ENV['AUTHIFY_VERIFICATIONS_REQUIRED'] == 'false' ? false : true
       }
     )
   end

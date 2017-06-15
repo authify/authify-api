@@ -83,12 +83,14 @@ module Authify
 
         def self.from_api_key(access, secret)
           key = APIKey.find_by_access_key(access)
-          key.user if key && key.compare_secret(secret) && key.user.verified?
+          verification_truthiness = (key.user.verified? || !CONFIG[:verifications][:required])
+          key.user if key && key.compare_secret(secret) && verification_truthiness
         end
 
         def self.from_email(email, password)
           found_user = Models::User.find_by_email(email)
-          found_user if found_user && found_user.authenticate(password) && found_user.verified?
+          verification_truthiness = (found_user.verified? || !CONFIG[:verifications][:required])
+          found_user if found_user && found_user.authenticate(password) && verification_truthiness
         end
 
         def self.from_identity(provider, uid)
