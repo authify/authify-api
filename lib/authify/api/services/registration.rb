@@ -74,7 +74,7 @@ module Authify
           update_current_user new_user
 
           response = { id: new_user.id, email: new_user.email }
-          if new_user.verified?
+          if new_user.verified? || !CONFIG[:verifications][:required]
             response[:verified] = true
             response[:jwt]      = jwt_token(user: new_user)
           else

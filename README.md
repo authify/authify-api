@@ -145,6 +145,9 @@ The name of the [JWA](https://tools.ietf.org/html/draft-ietf-jose-json-web-algor
 **`AUTHIFY_JWT_EXPIRATION`**
 How long should a JWT be valid (in minutes). Defaults to 15. Too small of a value will mean a lot more requests to the API; too high increases the possibility of viable keys being captured.
 
+**`AUTHIFY_VERIFICATIONS_REQUIRED`**
+Allows disabling the requirement for email verifications for user signups. **NOT RECOMMENDED FOR PRODUCTION!** This should be used only if public signups are disabled (which is not yet implemented) or for integration testing. Simply set this environment variable to `'false'` (as a string) and Authify will not enforce verifications (making them optional).
+
 ## Usage and Authentication Workflow
 
 ### Generating an SSL Certificate

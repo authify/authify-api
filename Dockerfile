@@ -9,6 +9,7 @@ ENV AUTHIFY_PRIVKEY_PATH=/ssl/private.pem
 ENV AUTHIFY_JWT_ISSUER="My Awesome Company Inc."
 ENV AUTHIFY_JWT_ALGORITHM="ES512"
 ENV AUTHIFY_JWT_EXPIRATION="15"
+ENV AUTHIFY_VERIFICATIONS_REQUIRED="true"
 
 RUN apk --no-cache upgrade \
     && apk --no-cache add \
