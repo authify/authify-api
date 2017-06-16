@@ -1,8 +1,8 @@
-FROM ruby:2.3.3-alpine
+FROM ruby:2.3.4-alpine
 
 ENV AUTHIFY_PORT=9292
 ENV AUTHIFY_ENVIRONMENT=development
-ENV AUTHIFY_DB_URL=sqlite3:///app/authify-api.db
+ENV AUTHIFY_DB_URL=sqlite3:///tmp/authify-api.db
 ENV AUTHIFY_REDIS_HOST=redis
 ENV AUTHIFY_PUBKEY_PATH=/ssl/public.pem
 ENV AUTHIFY_PRIVKEY_PATH=/ssl/private.pem

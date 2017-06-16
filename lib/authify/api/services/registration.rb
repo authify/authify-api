@@ -70,7 +70,7 @@ module Authify
             new_user.add_verification_token!
           end
 
-          new_user.save
+          halt(422, 'Failed to save user') unless new_user.save
           update_current_user new_user
 
           response = { id: new_user.id, email: new_user.email }
