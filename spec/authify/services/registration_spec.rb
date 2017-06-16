@@ -11,6 +11,13 @@ describe Authify::API::Services::Registration do
   context 'mounted at /registration' do
     # /signup
     context 'signup endpoint' do
+      let(:invalid_signup_data) do
+        {
+          'email'    => 'this',
+          'password' => 'wontwork'
+        }
+      end
+
       let(:password_signup_data) do
         {
           'email'    => 'second.user@example.com',
@@ -71,6 +78,16 @@ describe Authify::API::Services::Registration do
 
       context 'POST /signup' do
         context 'with email verifications required' do
+          it 'fails registration with an invalid email' do
+            header 'Accept', 'application/json'
+            header 'Content-Type', 'application/json'
+            post '/signup', invalid_signup_data.to_json
+
+            # Should respond with a 422
+            expect(last_response.status).to eq(422)
+            expect(last_response.body).to eq('Invalid Email')
+          end
+
           it 'allows registration via email and password' do
             header 'Accept', 'application/json'
             header 'Content-Type', 'application/json'
