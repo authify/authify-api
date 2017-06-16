@@ -85,7 +85,7 @@ describe Authify::API::Services::Registration do
 
             # Should respond with a 422
             expect(last_response.status).to eq(422)
-            expect(last_response.body).to eq('Invalid Email')
+            expect(last_response.body).to eq('Failed to save user')
           end
 
           it 'allows registration via email and password' do
