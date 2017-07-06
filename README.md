@@ -94,6 +94,9 @@ Alternate User Identities. These are other services that the user can login via 
 **`/organizations`**
 Organizations. These are high-level groupings of users and groups. Non-administrators should only be able to see limited amounts of information about organizations.
 
+**`/trusted-delegates`**
+Trusted Delegates. These are heavily-integrated applications that can offload some of the API's functionality (usually getting a user's credentials). All actions on this controller require `admin` access to Authify. See [Trusted Delegates](#trusted_delegates) below for more info.
+
 **`/users`**
 Users controller.
 
@@ -101,7 +104,7 @@ Users controller.
 
 In addition to expiring JWTs provided via `/jwt/token` for normal user interactions, Trusted Delegates can perform any action by providing the `X-Authify-Access`, `X-Authify-Secret`, and the `X-Authify-On-Behalf-Of` headers. The `Access` and `Secret` headers are used to authenticate the remote application, and the `On-Behalf-Of` is used to impersonate the user (determined through a process on the remote, trusted delegate's end to establish the user's identity).
 
-Note that while these sound similar to User API keys, these Trusted Delegate credentials are longer and can not be interchanged with User API Keys. These values do not expire and are not easily created or removed. For this reason, they should be used **very** sparingly. They can only be created, listed, or removed via a set of `rake` commands run server-side. These are:
+Note that while these sound similar to User API keys, these Trusted Delegate credentials are longer and can not be interchanged with User API Keys. These values do not expire and are not easily created or removed. For this reason, they should be used **very** sparingly. In a pinch, they can be created, listed, or removed via a set of `rake` commands run server-side. These are:
 
 * `rake delegate:add[<name>]` - where `<name>` is the unique name of the trusted delegate. For example, `rake delegate:add[foo]` adds a remote delegate named `foo`. This command will output a key / value set providing the access\_key and secret\_key. The secret\_key is stored as a one-way hash in the DB, so it can never be retrieved again.
 * `rake delegate:list` - lists the names of all trusted delegates along with their access keys.
