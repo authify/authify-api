@@ -5,6 +5,7 @@ module Authify
       class TrustedDelegate < ActiveRecord::Base
         include Core::SecureHashing
         extend Core::SecureHashing
+        include JSONAPIUtils
 
         attr_reader :secret_key
 

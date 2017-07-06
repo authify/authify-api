@@ -67,6 +67,7 @@ module Authify
         resource :identities, &Controllers::Identity
         resource :groups, &Controllers::Group
         resource :organizations, &Controllers::Organization
+        resource :trusted_delegate, &Controllers::TrustedDelegate
         resource :users, &Controllers::User
 
         freeze_jsonapi
