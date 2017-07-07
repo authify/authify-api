@@ -57,7 +57,7 @@ module Authify
           valid_until = valid_time.to_i
           self.verification_token = "#{token}:#{valid_until}"
 
-          subdata = { token: token, valid_until: valid_time }
+          subdata = { 'token' => token, 'valid_until' => valid_time }
 
           email_opts = {
             body: if opts.key?(:body)
