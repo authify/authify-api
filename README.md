@@ -368,7 +368,7 @@ to include a `templates` section like this:
 }
 ```
 
-Authify's templating supports something that looks a bit like [Handlebars](http://handlebarsjs.com/) templating (though it doesn't yet support most of the Handlebars features). This is useful for allowing the injection of dynamic data into your templates. Available expressions should be declared in the README section that describes a template-capable endpoint.
+Authify's uses [Liquid](https://shopify.github.io/liquid/) for templating. This is useful for allowing the injection of dynamic data into your templates, and it also supports a robust set of [tags](https://shopify.github.io/liquid/basics/introduction/#tags) for iteration and control flow, as well as [filters](https://shopify.github.io/liquid/basics/introduction/#filters) for manipulating data. Predefined variables and available expressions should be declared in the README section that describes a template-capable endpoint.
 
 For some template data, escaping can be difficult or inconvenient. For these situations, Authify supports optional [Base64](https://en.wikipedia.org/wiki/Base64) encoding of values. To provide a Base64-encoded value, just declare it as such using `{base64}` followed by the data:
 

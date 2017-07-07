@@ -11,10 +11,9 @@ module Authify
           hash.update(hash) { |_, v| v.is_a?(String) ? human_readable(v) : v }
         end
 
-        # Interpolates handlebars-style templates
-        # OPTIMIZE: this can probably be faster
+        # Interpolates handlebars-style (liquid) templates
         def dehandlebar(text, data = {})
-          text.gsub(/{{([a-z0-9_-]+)}}/) { data[Regexp.last_match[1].to_sym].to_s }
+          Liquid::Template.parse(text).render(data, error_mode: :warn, strict_variables: true)
         end
 
         def human_readable(text)

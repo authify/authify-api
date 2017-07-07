@@ -13,6 +13,7 @@ require 'connection_pool'
 require 'moneta'
 require 'resque'
 require 'hitimes'
+require 'liquid'
 
 # Internal Requirements
 module Authify
