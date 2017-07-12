@@ -5,6 +5,8 @@ module Authify
       class Organization < ActiveRecord::Base
         include JSONAPIUtils
 
+        validates_uniqueness_of :name
+
         has_many :organization_memberships,
                  class_name: 'Authify::API::Models::OrganizationMembership',
                  dependent: :destroy

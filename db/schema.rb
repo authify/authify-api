@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170609181046) do
+ActiveRecord::Schema.define(version: 20170712103320) do
 
   create_table "apikeys", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "user_id"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 20170609181046) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name", "organization_id"], name: "index_groups_on_name_and_organization_id", unique: true
     t.index ["name"], name: "index_groups_on_name"
     t.index ["organization_id"], name: "index_groups_on_organization_id"
   end
@@ -46,6 +47,7 @@ ActiveRecord::Schema.define(version: 20170609181046) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["provider"], name: "index_identities_on_provider"
+    t.index ["uid", "provider"], name: "index_identities_on_uid_and_provider", unique: true
     t.index ["uid"], name: "index_identities_on_uid"
     t.index ["user_id"], name: "index_identities_on_user_id"
   end
@@ -70,6 +72,7 @@ ActiveRecord::Schema.define(version: 20170609181046) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_organizations_on_name"
+    t.index ["name"], name: "index_organizations_unique_on_name", unique: true
   end
 
   create_table "trusted_delegates", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -92,8 +95,11 @@ ActiveRecord::Schema.define(version: 20170609181046) do
     t.boolean "admin", default: false, null: false
     t.boolean "verified"
     t.string "verification_token"
+    t.string "handle"
     t.index ["admin"], name: "index_users_on_admin"
     t.index ["email"], name: "index_users_on_email"
+    t.index ["email"], name: "index_users_unique_on_email", unique: true
+    t.index ["handle"], name: "index_users_on_handle", unique: true
     t.index ["verified"], name: "index_users_on_verified"
   end
 

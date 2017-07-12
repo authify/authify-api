@@ -10,6 +10,7 @@ module Authify
         attr_reader :password
 
         validates_uniqueness_of :email
+        validates_uniqueness_of :handle
         validates_format_of :email, with: /[-a-z0-9_+\.+]+\@([-a-z0-9]+\.)+[a-z0-9]{2,4}/i
 
         has_many :apikeys,

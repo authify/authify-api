@@ -5,6 +5,8 @@ module Authify
       class Group < ActiveRecord::Base
         include JSONAPIUtils
 
+        validates_uniqueness_of :name, scope: :organization_id
+
         belongs_to :organization,
                    required: true,
                    class_name: 'Authify::API::Models::Organization'
