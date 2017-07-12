@@ -26,17 +26,18 @@ module Authify
           end
 
           def modifiable_fields
-            %i[full_name email].tap do |a|
+            %i[full_name email handle].tap do |a|
               a << :admin if role.include?(:admin)
             end
           end
 
           def indexable_fields
-            %i[full-name admin apikeys groups organizations identities].tap do |a|
+            %i[full-name admin handle groups organizations identities].tap do |a|
               if role?(:admin) || role?(:myself)
                 a << :verified
                 a << :email
                 a << :'created-at'
+                a << :apikeys
               end
             end
           end
