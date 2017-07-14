@@ -204,6 +204,7 @@ This will return JSON similar to the following:
 {
   "id": 172,
   "email": "someuser@mycompany.com",
+  "handle": "someuser",
   "verified": false
 }
 ```
@@ -229,6 +230,7 @@ This will return JSON similar to the following:
 {
   "id": 172,
   "email": "someuser@mycompany.com",
+  "handle": "someuser",
   "verified": true,
   "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJleHAiOjE0ODY0ODcyODcsImlhdCI6MTQ4NjQ4MzY4NywiaXNzIjoiTXkgQXdlc29tZSBDb21wYW55IEluYy4iLCJzY29wZXMiOlsidXNlcl9hY2Nlc3MiXSwidXNlciI6eyJ1c2VybmFtZSI6ImZvb0BiYXIuY29tIiwidWlkIjoyLCJvcmdhbml6YXRpb25zIjpbXSwiZ3JvdXBzIjpbXX19.AWfPpKX9mP03Djz3-LMneJdEVsXQm_4GOPVCdkfiiBeIR4pVLKTVrNoNdlNgSEkZEeUw1RPsVxpAR7wDgB4cNcYiAP3fNaD8OPyWfOQAV0lTvDUSH3YU39cZAVwvbX9HleOHBLrFGBbui5wSvfi7WZZlH808psiuUAVhBOe7mfrNiHGB"
 }
