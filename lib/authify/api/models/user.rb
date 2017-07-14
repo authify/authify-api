@@ -10,6 +10,7 @@ module Authify
         attr_reader :password
 
         validates_uniqueness_of :email
+        validates_uniqueness_of :handle
         validates_format_of :email, with: /[-a-z0-9_+\.+]+\@([-a-z0-9]+\.)+[a-z0-9]{2,4}/i
 
         has_many :apikeys,
@@ -33,8 +34,9 @@ module Authify
 
         # Encrypts the password into the password_digest attribute.
         def password=(plain_password)
+          return false unless viable(plain_password)
           @password = plain_password
-          self.password_digest = salted_sha512(plain_password) if viable(plain_password)
+          self.password_digest = salted_sha512(plain_password)
         end
 
         def authenticate(unencrypted_password)
@@ -98,10 +100,26 @@ module Authify
           provided_identity.user if provided_identity
         end
 
+        def self.uniq_handle_generator(name, email)
+          possibilities = [email.split('@').first.downcase.gsub(/[._-]/, '')]
+          possibilities << name.downcase.gsub(/[.-]/, '_') if name && !name.empty?
+          possibilities.each do |possibility|
+            return possibility unless find_by_handle(possibility)
+          end
+          100.times do
+            possibilities.each do |possibility|
+              rando_num = rand(9999)
+              attempt   = "#{possibility.downcase.gsub(/[.-]/, '_')}#{rando_num}"
+              return attempt unless find_by_handle(attempt)
+            end
+          end
+          false # didn't work if we got here
+        end
+
         private
 
         def viable(string)
-          string && !string.empty?
+          string && !string.empty? && string.length >= 8
         end
       end
     end

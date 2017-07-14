@@ -69,7 +69,8 @@ RSpec.configure do |config|
     # A pre-built user for testing
     user = Authify::API::Models::User.new(
       email: 'test.user@example.com',
-      full_name: 'Test User'
+      full_name: 'Test User',
+      handle: 'testuser'
     )
     user.password = 'testuser123'
     user.save
@@ -90,7 +91,8 @@ RSpec.configure do |config|
     # A pre-built user for misbehaving
     bad_user = Authify::API::Models::User.new(
       email: 'bad.user@example.com',
-      full_name: 'Bad User'
+      full_name: 'Bad User',
+      handle: 'baduser'
     )
     bad_user.password = 'baduser123'
     bad_user.save
@@ -100,6 +102,7 @@ RSpec.configure do |config|
     admin_user = Authify::API::Models::User.new(
       email: 'admin.user@example.com',
       full_name: 'Admin User',
+      handle: 'admin',
       admin: true
     )
     admin_user.password = 'adminuser123'

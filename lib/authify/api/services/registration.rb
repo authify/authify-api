@@ -48,6 +48,7 @@ module Authify
 
         post '/signup' do
           email = @parsed_body[:email]
+          handle = @parsed_body[:handle]
           via = @parsed_body[:via]
           password = @parsed_body[:password]
           name = @parsed_body[:name]
@@ -57,8 +58,12 @@ module Authify
           halt(403, 'Password Required') unless password || remote_app
 
           new_user = Models::User.new(email: email)
+          new_user.handle = handle || Models::User.uniq_handle_generator(name, email)
           new_user.full_name = name if name
-          new_user.password = password if password
+          if password
+            new_user.password = password
+            halt(422, 'Invalid password') unless new_user.password
+          end
           if via && via[:provider] && remote_app
             new_user.identities.build(
               provider: via[:provider], uid: via[:uid] ? via[:uid] : email
@@ -73,7 +78,7 @@ module Authify
           halt(422, 'Failed to save user') unless new_user.save
           update_current_user new_user
 
-          response = { id: new_user.id, email: new_user.email }
+          response = { id: new_user.id, email: new_user.email, handle: new_user.handle }
           if new_user.verified? || !CONFIG[:verifications][:required]
             response[:verified] = true
             response[:jwt]      = jwt_token(user: new_user)
@@ -99,11 +104,14 @@ module Authify
           if token && @parsed_body[:password] && found_user.verify(token)
             found_user.verified = true
             found_user.password = @parsed_body[:password]
+            halt(422, 'Invalid password') unless found_user.password == @parsed_body[:password]
+
             found_user.save
             Metrics.instance.increment('registration.password.resets')
             {
               id: found_user.id,
               email: found_user.email,
+              handle: found_user.handle,
               verified: found_user.verified?,
               jwt: jwt_token(user: found_user)
             }.to_json

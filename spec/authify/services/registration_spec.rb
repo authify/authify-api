@@ -18,6 +18,13 @@ describe Authify::API::Services::Registration do
         }
       end
 
+      let(:invalid_password_data) do
+        {
+          'email'    => 'this@wont.work',
+          'password' => 'bad'
+        }
+      end
+
       let(:password_signup_data) do
         {
           'email'    => 'second.user@example.com',
@@ -25,9 +32,17 @@ describe Authify::API::Services::Registration do
         }
       end
 
+      let(:password_signup_data_with_handle) do
+        {
+          'email'    => 'handle.user@example.com',
+          'password' => 'handleuser1234',
+          'handle'   => 'huser'
+        }
+      end
+
       let(:identity_signup_data) do
         {
-          'email'    => 'third.user@example.com',
+          'email'    => 'fourth.user@example.com',
           'via' => {
             'provider' => 'facetube',
             'uid'      => '23456'
@@ -49,8 +64,8 @@ describe Authify::API::Services::Registration do
 
       let(:signup_with_encoded_template_data) do
         {
-          'email'     => 'encoded.user@example.com',
-          'password'  => 'encodeduser1234',
+          'email'     => 'template.user@encoded.com',
+          'password'  => 'templateuser2345',
           'templates' => {
             'email' => {
               'body' => '{base64}VGhpcyB3YXMgZW5jb2RlZDoge3t0b2tlbn19'
@@ -61,8 +76,8 @@ describe Authify::API::Services::Registration do
 
       let(:password_signup_no_verify_data) do
         {
-          'email'    => 'eighth.user@example.com',
-          'password' => 'eighthuser1234'
+          'email'    => 'ninth.user@example.com',
+          'password' => 'ninthhuser1234'
         }
       end
 
@@ -88,6 +103,16 @@ describe Authify::API::Services::Registration do
             expect(last_response.body).to eq('Failed to save user')
           end
 
+          it 'fails registration with an invalid password' do
+            header 'Accept', 'application/json'
+            header 'Content-Type', 'application/json'
+            post '/signup', invalid_password_data.to_json
+
+            # Should respond with a 422
+            expect(last_response.status).to eq(422)
+            expect(last_response.body).to eq('Invalid password')
+          end
+
           it 'allows registration via email and password' do
             header 'Accept', 'application/json'
             header 'Content-Type', 'application/json'
@@ -98,11 +123,32 @@ describe Authify::API::Services::Registration do
 
             details = JSON.parse(last_response.body)
 
-            expect(details.size).to eq(3)
+            expect(details.size).to eq(4)
             expect(details).to have_key('verified')
             expect(details['verified']).to be(false)
             expect(details['email']).to eq(password_signup_data['email'])
+            expect(details['handle']).to eq(
+              password_signup_data['email'].split('@').first.downcase.gsub(/[._-]/, '')
+            )
             expect(details['id']).to eq(4)
+          end
+
+          it 'allows registration with a requested handle' do
+            header 'Accept', 'application/json'
+            header 'Content-Type', 'application/json'
+            post '/signup', password_signup_data_with_handle.to_json
+
+            # Should respond with a 200
+            expect(last_response.status).to eq(200)
+
+            details = JSON.parse(last_response.body)
+
+            expect(details.size).to eq(4)
+            expect(details).to have_key('verified')
+            expect(details['verified']).to be(false)
+            expect(details['email']).to eq(password_signup_data_with_handle['email'])
+            expect(details['handle']).to eq(password_signup_data_with_handle['handle'])
+            expect(details['id']).to eq(5)
           end
 
           it 'allows registration via email and password and an email body template' do
@@ -115,11 +161,14 @@ describe Authify::API::Services::Registration do
 
             details = JSON.parse(last_response.body)
 
-            expect(details.size).to eq(3)
+            expect(details.size).to eq(4)
             expect(details).to have_key('verified')
             expect(details['verified']).to be(false)
             expect(details['email']).to eq(signup_with_template_data['email'])
-            expect(details['id']).to eq(5)
+            expect(details['handle']).to eq(
+              signup_with_template_data['email'].split('@').first.downcase.gsub(/[._-]/, '')
+            )
+            expect(details['id']).to eq(6)
             expect(
               Resque.sample_queues['mailer'][:samples].last['args'].last['body']
             ).to match(/^Your code is: [a-z0-9]+$/)
@@ -134,12 +183,15 @@ describe Authify::API::Services::Registration do
             expect(last_response.status).to eq(200)
 
             details = JSON.parse(last_response.body)
+            email = signup_with_encoded_template_data['email']
+            handle_begin = email.split('@').first.downcase.gsub(/[._-]/, '')
 
-            expect(details.size).to eq(3)
+            expect(details.size).to eq(4)
             expect(details).to have_key('verified')
             expect(details['verified']).to be(false)
             expect(details['email']).to eq(signup_with_encoded_template_data['email'])
-            expect(details['id']).to eq(6)
+            expect(details['handle']).to match(/^#{handle_begin}\d+$/)
+            expect(details['id']).to eq(7)
             expect(
               Resque.sample_queues['mailer'][:samples].last['args'].last['body']
             ).to match(/^This was encoded: [a-z0-9]+$/)
@@ -157,12 +209,15 @@ describe Authify::API::Services::Registration do
 
             details = JSON.parse(last_response.body)
 
-            expect(details.size).to eq(4)
+            expect(details.size).to eq(5)
             expect(details).to have_key('verified')
             expect(details['verified']).to be(true)
             expect(details).to have_key('jwt')
             expect(details['email']).to eq(identity_signup_data['email'])
-            expect(details['id']).to eq(7)
+            expect(details['handle']).to eq(
+              identity_signup_data['email'].split('@').first.downcase.gsub(/[._-]/, '')
+            )
+            expect(details['id']).to eq(8)
           end
         end
 
@@ -185,11 +240,14 @@ describe Authify::API::Services::Registration do
 
             details = JSON.parse(last_response.body)
 
-            expect(details.size).to eq(4)
+            expect(details.size).to eq(5)
             expect(details).to have_key('verified')
             expect(details['verified']).to be(true)
             expect(details['email']).to eq(password_signup_no_verify_data['email'])
-            expect(details['id']).to eq(8)
+            expect(details['handle']).to eq(
+              password_signup_no_verify_data['email'].split('@').first.downcase.gsub(/[._-]/, '')
+            )
+            expect(details['id']).to eq(9)
           end
         end
       end
@@ -198,16 +256,16 @@ describe Authify::API::Services::Registration do
     context 'forgot_password endpoint' do
       let(:forgot_password_data) do
         {
-          'email' => 'third.user@example.com'
+          'email' => 'fourth.user@example.com'
         }
       end
 
       let(:password_reset_data) do
-        u = Authify::API::Models::User.find_by_email('third.user@example.com')
+        u = Authify::API::Models::User.find_by_email('fourth.user@example.com')
         full_token = u.verification_token
         {
-          'email'    => 'third.user@example.com',
-          'password' => 'thirduser1234',
+          'email'    => 'fourth.user@example.com',
+          'password' => 'fourthuser1234',
           'token'    => full_token.split(':').first
         }
       end
@@ -248,13 +306,16 @@ describe Authify::API::Services::Registration do
           expect(last_response.status).to eq(200)
 
           details = JSON.parse(last_response.body)
-          expect(details.size).to eq(4)
+          expect(details.size).to eq(5)
           expect(details).to have_key('verified')
           expect(details['verified']).to be(true)
           expect(details).to have_key('jwt')
           expect(details['email']).to eq(password_reset_data['email'])
+          expect(details['handle']).to eq(
+            password_reset_data['email'].split('@').first.downcase.gsub(/[._-]/, '')
+          )
           expect(
-            Authify::API::Models::User.find_by_email('third.user@example.com').authenticate(
+            Authify::API::Models::User.find_by_email('fourth.user@example.com').authenticate(
               password_reset_data['password']
             )
           ).to eq(true)
